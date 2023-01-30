@@ -32,6 +32,7 @@ run_evzinb <- function(formula_nb,
                        init.Beta.multinom.ZC = NULL,
                        init.Beta.multinom.PL = NULL,
                        init.Beta.NB = NULL,
+                       init.Beta.PL = NULL,
                        init.Alpha.NB = 0.01,
                        init.C = 200){
 
