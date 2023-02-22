@@ -11,7 +11,14 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     dplyr,
-    maxLik
-RoxygenNote: 7.2.1
+    maxLik,
+    Rcpp,
+    RcppArmadillo,
+    foreach,
+    doParallel
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+RoxygenNote: 7.2.2
 Depends: 
     R (>= 2.10)
