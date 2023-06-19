@@ -136,6 +136,18 @@ arma::vec delldbeta_pl_i_fun_approx(arma::vec beta_pl,double c_pl, arma::vec x_p
 }
 
 //[[Rcpp::export]]
+arma::vec delldbeta_pl_i_fun_approx_test(arma::vec beta_pl,double c_pl, arma::vec x_pl_ext_i, double y_i){
+  arma::mat xtb_pl_i = trans(x_pl_ext_i)*beta_pl;
+  double xtb_i = xtb_pl_i.eval()(0,0);
+  double exp_xtb_i = exp(xtb_i);
+  //arma::vec delldbeta_pl_i = x_pl_ext_i*(1 + log(c_pl)*exp_xtb_pl_i - log(y_i)*exp_xtb_pl_i);
+  double b = 1/(exp_xtb_i+1) + log(c_pl) - log(y_i);
+  arma::vec delldbeta_pl_i = x_pl_ext_i*b*exp_xtb_i;
+  
+  return(delldbeta_pl_i);
+}
+
+//[[Rcpp::export]]
 arma::mat d2elldbeta2_pl_i_fun_approx(arma::vec beta_pl,double c_pl, arma::vec x_pl_ext_i, double y_i){
   arma::mat xtb_pl_i = trans(x_pl_ext_i)*beta_pl;
   double a = xtb_pl_i.eval()(0,0);
@@ -198,7 +210,7 @@ double log_lik_fun(arma::vec gamma_z, arma::vec gamma_pl,arma::vec beta_nb, doub
       double exp_xtb_pl_i = exp(xtb_pl_i);
       double cdivy = c_pl/y(i);
       double cdivyp1 = c_pl/(y(i)+1);
-      double ell_pl_i = log(pow(cdivy,exp_xtb_pl_i) - pow(cdivyp1,exp_xtb_pl_i));
+      double ell_pl_i = log(pow(cdivy,exp_xtb_pl_i+1) - pow(cdivyp1,exp_xtb_pl_i+1));
 
       func_val = func_val + log(props(i,1)*exp(ell_nb_i) + props(i,2)*exp(ell_pl_i));
     }
@@ -313,10 +325,10 @@ List update_bfgs_fun(arma::vec gamma_z_in, arma::vec gamma_pl_in,arma::vec beta_
   for(int i_bfgs=1; i_bfgs<=no_m_bfgs_steps; i_bfgs++){
     d2Qdbeta2_pl = zeros<mat>(n_pl,n_pl);
     dQdbeta_pl = zeros<mat>(n_pl,1);
-
+//Testing with test!!
     for(int i=0; i<n; i++){
       if(y(i)>=c_pl){
-        dQdbeta_pl = dQdbeta_pl + delldbeta_pl_i_fun_approx(beta_pl_old,c_pl,trans(x_pl_ext.submat(i,0,i,n_pl-1)),y(i))*resp(i,2);
+        dQdbeta_pl = dQdbeta_pl + delldbeta_pl_i_fun_approx_test(beta_pl_old,c_pl,trans(x_pl_ext.submat(i,0,i,n_pl-1)),y(i))*resp(i,2);
         d2Qdbeta2_pl = d2Qdbeta2_pl + d2elldbeta2_pl_i_fun_approx(beta_pl_old,c_pl,trans(x_pl_ext.submat(i,0,i,n_pl-1)),y(i))*resp(i,2);
       }
     }

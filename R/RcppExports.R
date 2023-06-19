@@ -25,6 +25,10 @@ delldbeta_pl_i_fun_approx <- function(beta_pl, c_pl, x_pl_ext_i, y_i) {
     .Call('_evi_delldbeta_pl_i_fun_approx', PACKAGE = 'evi', beta_pl, c_pl, x_pl_ext_i, y_i)
 }
 
+delldbeta_pl_i_fun_approx_test <- function(beta_pl, c_pl, x_pl_ext_i, y_i) {
+    .Call('_evi_delldbeta_pl_i_fun_approx_test', PACKAGE = 'evi', beta_pl, c_pl, x_pl_ext_i, y_i)
+}
+
 d2elldbeta2_pl_i_fun_approx <- function(beta_pl, c_pl, x_pl_ext_i, y_i) {
     .Call('_evi_d2elldbeta2_pl_i_fun_approx', PACKAGE = 'evi', beta_pl, c_pl, x_pl_ext_i, y_i)
 }
