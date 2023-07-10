@@ -1,16 +1,10 @@
+#' @keywords internal
+"_PACKAGE"
+
 ## usethis namespace: start
-#' @useDynLib evi, .registration = TRUE
-## usethis namespace: end
-NULL
-## usethis namespace: start
-#' @importFrom Rcpp sourceCpp
-## usethis namespace: end
-NULL
-## usethis namespace: start
-#' @useDynLib evi, .registration = TRUE
-## usethis namespace: end
-NULL
-## usethis namespace: start
-#' @importFrom Rcpp sourceCpp
+#' @importFrom doRNG %dorng%
+#' @importFrom foreach %do%
+#' @importFrom foreach %dopar%
+#' @importFrom magrittr %>%
 ## usethis namespace: end
 NULL

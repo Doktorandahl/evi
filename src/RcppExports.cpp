@@ -92,20 +92,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// delldbeta_pl_i_fun_approx_test
-arma::vec delldbeta_pl_i_fun_approx_test(arma::vec beta_pl, double c_pl, arma::vec x_pl_ext_i, double y_i);
-RcppExport SEXP _evi_delldbeta_pl_i_fun_approx_test(SEXP beta_plSEXP, SEXP c_plSEXP, SEXP x_pl_ext_iSEXP, SEXP y_iSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type beta_pl(beta_plSEXP);
-    Rcpp::traits::input_parameter< double >::type c_pl(c_plSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type x_pl_ext_i(x_pl_ext_iSEXP);
-    Rcpp::traits::input_parameter< double >::type y_i(y_iSEXP);
-    rcpp_result_gen = Rcpp::wrap(delldbeta_pl_i_fun_approx_test(beta_pl, c_pl, x_pl_ext_i, y_i));
-    return rcpp_result_gen;
-END_RCPP
-}
 // d2elldbeta2_pl_i_fun_approx
 arma::mat d2elldbeta2_pl_i_fun_approx(arma::vec beta_pl, double c_pl, arma::vec x_pl_ext_i, double y_i);
 RcppExport SEXP _evi_d2elldbeta2_pl_i_fun_approx(SEXP beta_plSEXP, SEXP c_plSEXP, SEXP x_pl_ext_iSEXP, SEXP y_iSEXP) {
@@ -172,7 +158,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_evi_d2elldtheta2_nb_i_fun", (DL_FUNC) &_evi_d2elldtheta2_nb_i_fun, 4},
     {"_evi_ell_pl_i_fun", (DL_FUNC) &_evi_ell_pl_i_fun, 4},
     {"_evi_delldbeta_pl_i_fun_approx", (DL_FUNC) &_evi_delldbeta_pl_i_fun_approx, 4},
-    {"_evi_delldbeta_pl_i_fun_approx_test", (DL_FUNC) &_evi_delldbeta_pl_i_fun_approx_test, 4},
     {"_evi_d2elldbeta2_pl_i_fun_approx", (DL_FUNC) &_evi_d2elldbeta2_pl_i_fun_approx, 4},
     {"_evi_log_lik_fun", (DL_FUNC) &_evi_log_lik_fun, 11},
     {"_evi_update_bfgs_fun", (DL_FUNC) &_evi_update_bfgs_fun, 13},

@@ -90,7 +90,7 @@ if(is.null(init.Beta.PL) | length(init.Beta.PL) != ncol(mf_pareto)){
 Ini.Val$Alpha.NB <- init.Alpha.NB
 Ini.Val$C <- init.C
 
-
+          
 evzinb <- zerinfl.nb.pl.regression.fun(OBS.Y,OBS.X.obj,Ini.Val,Control)
 evzinb$par.mat$Beta.multinom.ZC <- as.numeric(evzinb$par.mat$Beta.multinom.ZC)
 evzinb$par.mat$Beta.multinom.PL <- as.numeric(evzinb$par.mat$Beta.multinom.PL)
@@ -108,7 +108,7 @@ evzinb$formulas <- list(formula_nb = formula_nb,
                         formula_zi = formula_zi,
                         formula_evi = formula_evi,
                         formula_pareto = formula_pareto)
-evzinb$data <-  data %>% select(all_of(unique(c(all.vars(formula_nb),
+evzinb$data <-  data %>% dplyr::select(all_of(unique(c(all.vars(formula_nb),
                                                 all.vars(formula_zi),
                                                 all.vars(formula_evi),
                                                 all.vars(formula_pareto))))) %>%
@@ -129,6 +129,9 @@ return(evzinb)
 #' @param formula_evi Formula for the extreme-value inflation component of the model
 #' @param formula_pareto Formula for the pareto (extreme value) component of the model
 #' @param data Data to run the model on
+#' 
+#' @importFrom foreach %do%
+#' @importFrom foreach %dopar%
 #'
 #' @return An object of class 'evi' containing XX
 #' @export
@@ -191,8 +194,8 @@ run_evzinb_boot <- function(formula_nb,
   full_run$block <- block
   if(!is.null(block)){
     if(is.character(block)){
-      block2 <- data %>% select(all_of(block)) %>% pull()
-      full_run$data <- bind_cols(data %>% select(all_of(block)),full_run$data)
+      block2 <- data %>% dplyr::select(all_of(block)) %>% dplyr::pull()
+      full_run$data <- dplyr::bind_cols(data %>% dplyr::select(all_of(block)),full_run$data)
     }
   }else{
     block2 <- NULL
@@ -232,7 +235,7 @@ bootrun_evzinb <- function(evzinb,block = NULL, timing=T){
   }else{
     uniques <- unique(block)
     boot_block_id <- sample(uniques,length(uniques),replace=T)
-    boot_id <- boot_block_id %>% map(~which(block == .x)) %>% reduce(c)
+    boot_id <- boot_block_id %>% purrr::map(~which(block == .x)) %>% purrr::reduce(c)
 }
   OBS.Y <- evzinb$y[boot_id,]
 

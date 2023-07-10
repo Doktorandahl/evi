@@ -1,11 +1,8 @@
 library(devtools)
 library(usethis)
 
-use_package('dplyr')
-use_package('maxLik')
-
-load_all()
 document()
+load_all()
 
 hks <- readRDS("/Users/davra945/Documents/PhD/pl_reg/hks_jvdr.rds")%>% mutate(brv_AllLag = log(brv_AllLag + 1),
                                                                               troopLag_log = log(troopLag+1),
@@ -23,6 +20,17 @@ tt <- run_evzinb(formula_nb = f1,
            formula_pareto = f2,
            data=hks)
 
+tt2 <- run_evzinb_boot(formula_nb = f1,
+                 formula_zi = f1,
+                 formula_evi = f1,
+                 formula_pareto = f2,
+                 data=hks)
+
+tt3 <- run_evinb_boot(formula_nb = f1,
+                       formula_zi = f1,
+                       formula_evi = f1,
+                       formula_pareto = f2,
+                       data=hks,n_bootstraps = 100)
 
 
 
