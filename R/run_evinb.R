@@ -208,7 +208,8 @@ run_evinb_boot <- function(formula_nb,
                             multicore = T,
                             ncores = 6,
                             block = NULL,
-                            max.diff.par = 1e-3,
+                           boot_seed = NULL,
+                           max.diff.par = 1e-3,
                             max.no.em.steps = 200,
                             max.no.em.steps.warmup = 5,
                             c.lim=c(50,1000),
@@ -265,7 +266,7 @@ run_evinb_boot <- function(formula_nb,
   
   
   doParallel::registerDoParallel(cores = ncores)
-  boots <- foreach::foreach(i=1:n_bootstraps) %dopar%
+  boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
     try(bootrun_evinb(full_run,block2))
   doParallel::stopImplicitCluster()
   

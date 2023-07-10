@@ -14,6 +14,7 @@ run_evinb_boot(
   multicore = T,
   ncores = 6,
   block = NULL,
+  boot_seed = NULL,
   max.diff.par = 0.001,
   max.no.em.steps = 200,
   max.no.em.steps.warmup = 5,
