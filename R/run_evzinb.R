@@ -165,7 +165,8 @@ run_evzinb_boot <- function(formula_nb,
                        init.Beta.NB = NULL,
                        init.Beta.PL = NULL,
                        init.Alpha.NB = 0.01,
-                       init.C = 200){
+                       init.C = 200,
+                       track_progress = T){
 
   full_run <- run_evzinb(formula_nb = formula_nb,
                          formula_zi = formula_zi,
@@ -205,7 +206,7 @@ run_evzinb_boot <- function(formula_nb,
 
   doParallel::registerDoParallel(cores = ncores)
   boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
-    try(bootrun_evzinb(full_run,block2))
+    try(bootrun_evzinb(full_run,block2,track_progress = track_progress, id = i, maxboot = n_bootstraps))
   doParallel::stopImplicitCluster()
 
   names(boots) <- paste('bootstrap_',1:length(boots),sep="")
@@ -228,7 +229,8 @@ class(out) <- 'evzinb'
 #' @export
 #'
 #' @examples run_evzinb(y~x1+x2,y~x1+x3,y~x1,y~x4, data=data_test)
-bootrun_evzinb <- function(evzinb,block = NULL, timing=T){
+bootrun_evzinb <- function(evzinb,block = NULL, timing=T,track_progress = F,
+                           id = NULL, maxboot = NULL){
 
   tim <- Sys.time()
   if(is.null(block)){
@@ -273,6 +275,9 @@ bootrun_evzinb <- function(evzinb,block = NULL, timing=T){
   evzinb_boot$boot_id <- boot_id
   if(timing){
     evzinb_boot$time <- difftime(Sys.time(),tim,units='secs')
+  }
+  if(track_progress){
+    cat("\n ======= Bootstra ",id, " of ", maxboot, "done in ", round(evzinb_boot$time,1), "===== \n")
   }
   return(evzinb_boot)
 }

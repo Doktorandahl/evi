@@ -17,7 +17,8 @@ Imports:
     foreach,
     doParallel,
     magrittr,
-    doRNG
+    doRNG,
+    generics
 LinkingTo: 
     Rcpp,
     RcppArmadillo

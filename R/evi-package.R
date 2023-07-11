@@ -5,6 +5,9 @@
 #' @importFrom doRNG %dorng%
 #' @importFrom foreach %do%
 #' @importFrom foreach %dopar%
+#' @importFrom generics tidy
 #' @importFrom magrittr %>%
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib evi, .registration = TRUE
 ## usethis namespace: end
 NULL

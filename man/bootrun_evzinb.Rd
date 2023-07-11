@@ -4,7 +4,14 @@
 \alias{bootrun_evzinb}
 \title{Running an extreme value and zero inflated negative binomial model with bootstrapping}
 \usage{
-bootrun_evzinb(evzinb, block = NULL, timing = T)
+bootrun_evzinb(
+  evzinb,
+  block = NULL,
+  timing = T,
+  track_progress = F,
+  id = NULL,
+  maxboot = NULL
+)
 }
 \arguments{
 \item{formula_nb}{Formula for the negative binomial (count) component of the model}

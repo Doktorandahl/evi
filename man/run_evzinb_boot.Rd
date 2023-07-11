@@ -33,7 +33,8 @@ run_evzinb_boot(
   init.Beta.NB = NULL,
   init.Beta.PL = NULL,
   init.Alpha.NB = 0.01,
-  init.C = 200
+  init.C = 200,
+  track_progress = T
 )
 }
 \arguments{
