@@ -6,7 +6,6 @@
 \usage{
 run_evinb(
   formula_nb,
-  formula_zi,
   formula_evi,
   formula_pareto,
   data,
@@ -34,13 +33,13 @@ run_evinb(
 \arguments{
 \item{formula_nb}{Formula for the negative binomial (count) component of the model}
 
-\item{formula_zi}{Formula for the zero-inflation component of the model}
-
 \item{formula_evi}{Formula for the extreme-value inflation component of the model}
 
 \item{formula_pareto}{Formula for the pareto (extreme value) component of the model}
 
 \item{data}{Data to run the model on}
+
+\item{formula_zi}{Formula for the zero-inflation component of the model}
 }
 \value{
 An object of class 'evi' containing XX

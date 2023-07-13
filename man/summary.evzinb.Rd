@@ -4,7 +4,16 @@
 \alias{summary.evzinb}
 \title{EVZINB summary function}
 \usage{
-\method{summary}{evzinb}(object, boot_mean = F, boot_se = F, p_approx = F, ...)
+\method{summary}{evzinb}(
+  object,
+  coef = c("original", "bootstrapped_mean", "bootstrapped_median"),
+  standard_error = TRUE,
+  p_value = c("bootstrapped", "approx", "both", "none"),
+  bootstrapped_props = c("none", "mean", "median"),
+  approx_t_value = TRUE,
+  symmetric_bootstrap_p = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{an EVZINB object with bootstraps}
@@ -22,5 +31,5 @@ An EVZINB summary object
 EVZINB summary function
 }
 \examples{
-summary(evinb)
+summary(evzinb)
 }

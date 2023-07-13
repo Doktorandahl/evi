@@ -18,7 +18,8 @@ Imports:
     doParallel,
     magrittr,
     doRNG,
-    generics
+    generics,
+    tibble
 LinkingTo: 
     Rcpp,
     RcppArmadillo

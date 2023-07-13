@@ -8,25 +8,27 @@
 #' @return An EVZINB summary object
 #' @export
 #'
-#' @examples summary(evinb)
-summary.evzinb <- function(object,boot_mean=F,boot_se=F,p_approx=F,...){
+#' @examples summary(evzinb)
+summary.evzinb <- function(object,coef = c('original','bootstrapped_mean','bootstrapped_median'),standard_error = TRUE, p_value = c('bootstrapped','approx','both','none'), bootstrapped_props = c('none','mean','median'),approx_t_value = TRUE,
+                           symmetric_bootstrap_p = TRUE,...){
+
+coef <- match.arg(coef,c('original','bootstrapped_mean','bootstrapped_median'))
+
+p_value <- match.arg(p_value, c('bootstrapped','approx','both','none'))
+
+bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
 
 
-  nb <- dplyr::tibble(Variable = names(object$par.mat$Beta.NB),Estimate = object$par.mat$Beta.NB)
-  zi <- dplyr::tibble(Variable = names(object$par.mat$Beta.multinom.ZC),Estimate = object$par.mat$Beta.multinom.ZC)
-  evi <- dplyr::tibble(Variable = names(object$par.mat$Beta.multinom.PL),Estimate = object$par.mat$Beta.multinom.PL)
-  pareto <- dplyr::tibble(Variable = names(object$par.mat$Beta.PL),Estimate = object$par.mat$Beta.PL)
-
-  nobs <- nrow(object$x.nb)
+  nobs <- nrow(object$data$x.nb)
   npar <- length(object$par.all)
   
-  mean_props <- object$par.mat$Props %>% dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
+  props <- object$props %>% dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
     dplyr::group_by(state) %>%
     dplyr::summarize(mean_prop = mean(value)) %>%
     dplyr::slice(c(3,1,2))
-  alpha_nb <- c(object$par.mat$Alpha.NB)
+  alpha_nb <- c(object$coef$Alpha.NB)
   names(alpha_nb) <- c('Alpha_NB')
-  C_est <- c(object$par.mat$C)
+  C_est <- c(object$coef$C)
   names(C_est) <- c('C')
   
   if(!is.null(object$bootstraps)){
@@ -34,156 +36,109 @@ summary.evzinb <- function(object,boot_mean=F,boot_se=F,p_approx=F,...){
     object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
     n_failed_bootstraps <- n_bootstraps_org-length(object$bootstraps)
     
-  nb_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Beta.NB') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') %>%
-    dplyr::group_by(Variable) %>%
-    dplyr::summarize(boot_mean = mean(value),
-              boot_median = median(value),
-              boot_se = sd(value),
-              p_positive = mean(value>0))
+  nb_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.NB') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable')
 
-  zi_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Beta.multinom.ZC') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') %>%
-    dplyr::group_by(Variable) %>%
-    dplyr::summarize(boot_mean = mean(value),
-              boot_median = median(value),
-              boot_se = sd(value),
-              p_positive = mean(value>0))
+  zi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.ZC') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable')
 
-  evi_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Beta.multinom.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') %>%
-    dplyr::group_by(Variable) %>%
-    dplyr::summarize(boot_mean = mean(value),
-              boot_median = median(value),
-              boot_se = sd(value),
-              p_positive = mean(value>0))
+  evi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') 
 
-  pareto_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Beta.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') %>%
-    dplyr::group_by(Variable) %>%
-    dplyr::summarize(boot_mean = mean(value),
-              boot_median = median(value),
-              boot_se = sd(value),
-              p_positive = mean(value>0))
+  pareto_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') 
 
-  nb <- dplyr::left_join(nb,nb_boot) %>%
-    dplyr::mutate(p_boot = dplyr::case_when(sign(Estimate)==1 ~ (1-p_positive)/2,
-                              sign(Estimate)==-1 ~ p_positive/2),
-           p_approx = (1-pt(abs(Estimate/boot_se),df=nobs-npar))*2,
-           sig_boot = dplyr::case_when(p_boot < 0.001 ~ '***',
-                                p_boot < 0.01 ~ '**',
-                                p_boot < 0.05 ~ '*',
-                                p_boot < 0.1 ~ '.',
-                                T ~ ' '),
-           sig_approx = dplyr::case_when(p_approx < 0.001 ~ '***',
-                                  p_approx < 0.01 ~ '**',
-                                  p_approx < 0.05 ~ '*',
-                                  p_approx < 0.1 ~ '.',
-                                  T ~ ' ')) %>%
-    dplyr::select(-p_positive)
-
-
-  zi <- dplyr::left_join(zi,zi_boot) %>%
-    dplyr::mutate(p_boot = dplyr::case_when(sign(Estimate)==1 ~ (1-p_positive)/2,
-                              sign(Estimate)==-1 ~ p_positive/2),
-           p_approx = (1-pt(abs(Estimate/boot_se),df=nobs-npar))*2,
-           sig_boot = dplyr::case_when(p_boot < 0.001 ~ '***',
-                                p_boot < 0.01 ~ '**',
-                                p_boot < 0.05 ~ '*',
-                                p_boot < 0.1 ~ '.',
-                                T ~ ' '),
-           sig_approx = dplyr::case_when(p_approx < 0.001 ~ '***',
-                                  p_approx < 0.01 ~ '**',
-                                  p_approx < 0.05 ~ '*',
-                                  p_approx < 0.1 ~ '.',
-                                  T ~ ' ')) %>%
-    dplyr::select(-p_positive)
-
-  evi <- dplyr::left_join(evi,evi_boot) %>%
-    dplyr::mutate(p_boot = dplyr::case_when(sign(Estimate)==1 ~ (1-p_positive)/2,
-                              sign(Estimate)==-1 ~ p_positive/2),
-           p_approx = (1-pt(abs(Estimate/boot_se),df=nobs-npar))*2,
-           sig_boot = dplyr::case_when(p_boot < 0.001 ~ '***',
-                                p_boot < 0.01 ~ '**',
-                                p_boot < 0.05 ~ '*',
-                                p_boot < 0.1 ~ '.',
-                                T ~ ' '),
-           sig_approx = dplyr::case_when(p_approx < 0.001 ~ '***',
-                                  p_approx < 0.01 ~ '**',
-                                  p_approx < 0.05 ~ '*',
-                                  p_approx < 0.1 ~ '.',
-                                  T ~ ' ')) %>%
-    dplyr::select(-p_positive)
-
-  pareto <- dplyr::left_join(pareto,pareto_boot) %>%
-    dplyr::mutate(p_boot = dplyr::case_when(sign(Estimate)==1 ~ (1-p_positive)/2,
-                              sign(Estimate)==-1 ~ p_positive/2),
-           p_approx = (1-pt(abs(Estimate/boot_se),df=nobs-npar))*2,
-           sig_boot = dplyr::case_when(p_boot < 0.001 ~ '***',
-                                p_boot < 0.01 ~ '**',
-                                p_boot < 0.05 ~ '*',
-                                p_boot < 0.1 ~ '.',
-                                T ~ ' '),
-           sig_approx = dplyr::case_when(p_approx < 0.001 ~ '***',
-                                  p_approx < 0.01 ~ '**',
-                                  p_approx < 0.05 ~ '*',
-                                  p_approx < 0.1 ~ '.',
-                                  T ~ ' ')) %>%
-    dplyr::select(-p_positive)
-  
-  
-  mean_props_boot <-  object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Props') %>% purrr::map(colMeans) %>% purrr::reduce(rbind) %>%
+  props_boot <-  object$bootstraps %>% purrr::map('props') %>% purrr::map(colMeans) %>% purrr::reduce(rbind) %>%
     dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
     dplyr::group_by(state) %>%
-    dplyr::summarize(boot_mean_prop = mean(value),boot_median_prop = median(value), boot_se_prop = sd(value))
+    dplyr::summarize(bootstrap_mean = mean(value),bootstrap_median = median(value), standard_error = sd(value))
   
-  mean_props <- dplyr::left_join(mean_props,mean_props_boot)
+  if(bootstrapped_props == 'median'){
+    props_boot <- props_boot %>% dplyr::select(state,bootstrap_median,standard_error)
+  }else if(bootstrapped_props == 'mean'){
+    props_boot <- props_boot %>% dplyr::select(state,bootstrap_mean,standard_error)
+  }else{
+    props_boot <- props_boot %>% dplyr::select(state,standard_error)
+  }
+  
+    props <- dplyr::left_join(props,props_boot)
 
-  alpha_nb_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Alpha.NB') %>% purrr::reduce(c)
+  alpha_nb_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Alpha.NB') %>% purrr::reduce(c)
   
   alpha_nb <- c(alpha_nb, mean(alpha_nb_boot),median(alpha_nb_boot),sd(alpha_nb_boot))
-  names(alpha_nb) <- c('Alpha_NB','boot_mean_Alpha_NB','boot_median_Alpha_NB','boot_se_Alpha_NB')
+  names(alpha_nb) <- c('Alpha_NB','bootstrap_mean','bootstrap_median','standard_error')
 
-  C_est_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('C')%>% purrr::reduce(c)
+  C_est_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('C')%>% purrr::reduce(c)
   C_est <- c(C_est, mean(C_est_boot),median(C_est_boot),sd(C_est_boot))
-  names(C_est) <- c('C','boot_mean_C','boot_median_C','boot_se_C')
-  
-  if(!boot_mean){
-    nb <- nb %>% dplyr::select(-boot_mean)
-    zi <- zi %>% dplyr::select(-boot_mean)
-    evi <- evi %>% dplyr::select(-boot_mean)
-    pareto <- pareto %>% dplyr::select(-boot_mean)
-    mean_props<- mean_props %>% dplyr::select(-boot_mean_prop)
-  }
-  
-  if(!boot_se){
-    nb <- nb %>% dplyr::select(-boot_se)
-    zi <- zi %>% dplyr::select(-boot_se)
-    evi <- evi %>% dplyr::select(-boot_se)
-    pareto <- pareto %>% dplyr::select(-boot_se)
-    mean_props<- mean_props %>% dplyr::select(-boot_se_prop)
-  }
-  if(!p_approx){
-    nb <- nb %>% dplyr::select(-c(p_approx,sig_approx))
-    zi <- zi %>% dplyr::select(-c(p_approx,sig_approx))
-    evi <- evi %>% dplyr::select(-c(p_approx,sig_approx))
-    pareto <- pareto %>% dplyr::select(-c(p_approx,sig_approx))
-  }
-  
+  names(C_est) <- c('C','bootstrap_mean','bootstrap_median','standard_error')
 }
 
 
-
-
-  
-  if(!is.null(object$bootstraps)){
-    res <- list(negative_binomial = list(summary = nb, alpha_nb = alpha_nb),
-                pareto = list(summary = pareto, C = C_est),
-                zero_inflation = list(summary = zi, props = mean_props),
-                extreme_value_inflation = list(summary = evi, props = mean_props),
-                n_failed_bootstraps = n_failed_bootstraps)
-  }else{
-    res <- list(negative_binomial = list(summary = nb, alpha_nb = alpha_nb),
-                pareto = list(summary = pareto, C = C_est),
-                zero_inflation = list(summary = zi, props = mean_props),
-                extreme_value_inflation = list(summary = evi, props = mean_props))
+  if(coef == 'original'){
+    nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB),Estimate = object$coef$Beta.NB)
+    zi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.ZC),Estimate = object$coef$Beta.multinom.ZC)
+    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL),Estimate = object$coef$Beta.multinom.PL)
+    pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL),Estimate = object$coef$Beta.PL)
+  }else if(coef == 'bootstrapped_mean'){
+    nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
+      dplyr::summarize(Estimate = mean(value)))
+  zi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.ZC)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(Variable) %>%
+                                                                                             dplyr::summarize(Estimate = mean(value)))
+  evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+                                                                                             dplyr::summarize(Estimate = mean(value)))
+  pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
+                                                                                              dplyr::summarize(Estimate = mean(value)))
+  }else if(coef == 'bootstrapped_median'){
+    nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
+                                                                                      dplyr::summarize(Estimate = median(value)))
+    zi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.ZC)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(Variable) %>%
+                                                                                               dplyr::summarize(Estimate = median(value)))
+    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+                                                                                                dplyr::summarize(Estimate = median(value)))
+    pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
+                                                                                          dplyr::summarize(Estimate = median(value)))
   }
+  if(standard_error){
+    nb <- nb %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
+                                                                                      dplyr::summarize(se = sd(value)))
+    zi <- zi %>% dplyr::left_join(zi_boot %>% dplyr::group_by(Variable) %>%
+                                                                                               dplyr::summarize(se = sd(value)))
+    evi <- evi %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+                                                                                                dplyr::summarize(se = sd(value)))
+    pareto <- pareto %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
+                                                                                          dplyr::summarize(se = sd(value)))
+  }
+  
+  if(approx_t_value){
+    nb <- nb %>% dplyr::mutate(approx_t = Estimate/se)
+    zi <- zi %>% dplyr::mutate(approx_t = Estimate/se)
+    evi <- evi %>% dplyr::mutate(approx_t = Estimate/se)
+    pareto <- pareto %>% dplyr::mutate(approx_t = Estimate/se)
+  }
+  
+  if(p_value %in% c('bootstrapped','both')){
+    nb <- nb %>% dplyr::left_join(dplyr::left_join(nb_boot,nb) %>% dplyr::group_by(Variable) %>%
+                                    dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
+    zi <- zi %>% dplyr::left_join(dplyr::left_join(zi_boot,zi) %>% dplyr::group_by(Variable) %>%
+                                    dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
+    evi <- evi %>% dplyr::left_join(dplyr::left_join(evi_boot,evi) %>% dplyr::group_by(Variable) %>%
+                                      dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
+    pareto <- pareto %>% dplyr::left_join(dplyr::left_join(pareto_boot,pareto) %>% dplyr::group_by(Variable) %>%
+                                            dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
+    
+  }else if(p_value %in% c('approx','both')){
+    nb <- nb %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    zi <- zi %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    evi <- evi %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    pareto <- pareto %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+  }
+
+  res <- list(coefficients = list(negative_binomial = nb, 
+                                    zero_inflation = zi,
+                                    extreme_value_inflation = evi,
+                                    pareto = pareto),
+                model_statistics = list(Alpha_nb = alpha_nb,
+                                        C = C_est,
+                                        Obs = c(Obs = nobs,pars=npar,df=nobs-npar)),
+                component_proportions = props,
+                n_failed_bootstraps = n_failed_bootstraps)
+
   class(res) <- 'summary.evzinb'
 
   return(res)
@@ -202,186 +157,137 @@ summary.evzinb <- function(object,boot_mean=F,boot_se=F,p_approx=F,...){
 #' @export
 #'
 #' @examples summary(evinb)
-summary.evinb <- function(object,boot_mean=F,boot_se=F,p_approx=F,...){
+summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootstrapped_median'),standard_error = TRUE, p_value = c('bootstrapped','approx','both','none'), bootstrapped_props = c('none','mean','median'),approx_t_value = TRUE,
+                          symmetric_bootstrap_p = TRUE,...){
+  
+  coef <- match.arg(coef,c('original','bootstrapped_mean','bootstrapped_median'))
+  
+  p_value <- match.arg(p_value, c('bootstrapped','approx','both','none'))
+  
+  bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
   
   
-  nb <- dplyr::tibble(Variable = names(object$par.mat$Beta.NB),Estimate = object$par.mat$Beta.NB)
-  zi <- dplyr::tibble(Variable = names(object$par.mat$Beta.multinom.ZC),Estimate = object$par.mat$Beta.multinom.ZC)
-  evi <- dplyr::tibble(Variable = names(object$par.mat$Beta.multinom.PL),Estimate = object$par.mat$Beta.multinom.PL)
-  pareto <- dplyr::tibble(Variable = names(object$par.mat$Beta.PL),Estimate = object$par.mat$Beta.PL)
-  
-  nobs <- nrow(object$x.nb)
+  nobs <- nrow(object$data$x.nb)
   npar <- length(object$par.all)
   
-  mean_props <- object$par.mat$Props %>% dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
+  props <- object$props %>% dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
+    dplyr::filter(state != 'zero') %>%
     dplyr::group_by(state) %>%
     dplyr::summarize(mean_prop = mean(value)) %>%
-    dplyr::slice(c(3,1,2))
-  alpha_nb <- c(object$par.mat$Alpha.NB)
+  alpha_nb <- c(object$coef$Alpha.NB)
   names(alpha_nb) <- c('Alpha_NB')
-  C_est <- c(object$par.mat$C)
+  C_est <- c(object$coef$C)
   names(C_est) <- c('C')
-  n_failed_bootstraps <- NULL
   
   if(!is.null(object$bootstraps)){
     n_bootstraps_org <- length(object$bootstraps)
     object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
     n_failed_bootstraps <- n_bootstraps_org-length(object$bootstraps)
     
-    nb_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Beta.NB') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') %>%
-      dplyr::group_by(Variable) %>%
-      dplyr::summarize(boot_mean = mean(value),
-                       boot_median = median(value),
-                       boot_se = sd(value),
-                       p_positive = mean(value>0))
-    
-    zi_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Beta.multinom.ZC') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') %>%
-      dplyr::group_by(Variable) %>%
-      dplyr::summarize(boot_mean = mean(value),
-                       boot_median = median(value),
-                       boot_se = sd(value),
-                       p_positive = mean(value>0))
-    
-    evi_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Beta.multinom.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') %>%
-      dplyr::group_by(Variable) %>%
-      dplyr::summarize(boot_mean = mean(value),
-                       boot_median = median(value),
-                       boot_se = sd(value),
-                       p_positive = mean(value>0))
-    
-    pareto_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Beta.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') %>%
-      dplyr::group_by(Variable) %>%
-      dplyr::summarize(boot_mean = mean(value),
-                       boot_median = median(value),
-                       boot_se = sd(value),
-                       p_positive = mean(value>0))
-    
-    nb <- dplyr::left_join(nb,nb_boot) %>%
-      dplyr::mutate(p_boot = dplyr::case_when(sign(Estimate)==1 ~ (1-p_positive)/2,
-                                              sign(Estimate)==-1 ~ p_positive/2),
-                    p_approx = (1-pt(abs(Estimate/boot_se),df=nobs-npar))*2,
-                    sig_boot = dplyr::case_when(p_boot < 0.001 ~ '***',
-                                                p_boot < 0.01 ~ '**',
-                                                p_boot < 0.05 ~ '*',
-                                                p_boot < 0.1 ~ '.',
-                                                T ~ ' '),
-                    sig_approx = dplyr::case_when(p_approx < 0.001 ~ '***',
-                                                  p_approx < 0.01 ~ '**',
-                                                  p_approx < 0.05 ~ '*',
-                                                  p_approx < 0.1 ~ '.',
-                                                  T ~ ' ')) %>%
-      dplyr::select(-p_positive)
+    nb_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.NB') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable')
     
     
-    zi <- dplyr::left_join(zi,zi_boot) %>%
-      dplyr::mutate(p_boot = dplyr::case_when(sign(Estimate)==1 ~ (1-p_positive)/2,
-                                              sign(Estimate)==-1 ~ p_positive/2),
-                    p_approx = (1-pt(abs(Estimate/boot_se),df=nobs-npar))*2,
-                    sig_boot = dplyr::case_when(p_boot < 0.001 ~ '***',
-                                                p_boot < 0.01 ~ '**',
-                                                p_boot < 0.05 ~ '*',
-                                                p_boot < 0.1 ~ '.',
-                                                T ~ ' '),
-                    sig_approx = dplyr::case_when(p_approx < 0.001 ~ '***',
-                                                  p_approx < 0.01 ~ '**',
-                                                  p_approx < 0.05 ~ '*',
-                                                  p_approx < 0.1 ~ '.',
-                                                  T ~ ' ')) %>%
-      dplyr::select(-p_positive)
+    evi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') 
     
-    evi <- dplyr::left_join(evi,evi_boot) %>%
-      dplyr::mutate(p_boot = dplyr::case_when(sign(Estimate)==1 ~ (1-p_positive)/2,
-                                              sign(Estimate)==-1 ~ p_positive/2),
-                    p_approx = (1-pt(abs(Estimate/boot_se),df=nobs-npar))*2,
-                    sig_boot = dplyr::case_when(p_boot < 0.001 ~ '***',
-                                                p_boot < 0.01 ~ '**',
-                                                p_boot < 0.05 ~ '*',
-                                                p_boot < 0.1 ~ '.',
-                                                T ~ ' '),
-                    sig_approx = dplyr::case_when(p_approx < 0.001 ~ '***',
-                                                  p_approx < 0.01 ~ '**',
-                                                  p_approx < 0.05 ~ '*',
-                                                  p_approx < 0.1 ~ '.',
-                                                  T ~ ' ')) %>%
-      dplyr::select(-p_positive)
+    pareto_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') 
     
-    pareto <- dplyr::left_join(pareto,pareto_boot) %>%
-      dplyr::mutate(p_boot = dplyr::case_when(sign(Estimate)==1 ~ (1-p_positive)/2,
-                                              sign(Estimate)==-1 ~ p_positive/2),
-                    p_approx = (1-pt(abs(Estimate/boot_se),df=nobs-npar))*2,
-                    sig_boot = dplyr::case_when(p_boot < 0.001 ~ '***',
-                                                p_boot < 0.01 ~ '**',
-                                                p_boot < 0.05 ~ '*',
-                                                p_boot < 0.1 ~ '.',
-                                                T ~ ' '),
-                    sig_approx = dplyr::case_when(p_approx < 0.001 ~ '***',
-                                                  p_approx < 0.01 ~ '**',
-                                                  p_approx < 0.05 ~ '*',
-                                                  p_approx < 0.1 ~ '.',
-                                                  T ~ ' ')) %>%
-      dplyr::select(-p_positive)
-    
-    
-    mean_props_boot <-  object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Props') %>% purrr::map(colMeans) %>% purrr::reduce(rbind) %>%
+    props_boot <-  object$bootstraps %>% purrr::map('props') %>% purrr::map(colMeans) %>% purrr::reduce(rbind) %>%
       dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
+      dplyr::filter(state != 'zero') %>%
       dplyr::group_by(state) %>%
-      dplyr::summarize(boot_mean_prop = mean(value),boot_median_prop = median(value), boot_se_prop = sd(value))
+      dplyr::summarize(bootstrap_mean = mean(value),bootstrap_median = median(value), standard_error = sd(value))
     
-    mean_props <- dplyr::left_join(mean_props,mean_props_boot)
+    if(bootstrapped_props == 'median'){
+      props_boot <- props_boot %>% dplyr::select(state,bootstrap_median,standard_error)
+    }else if(bootstrapped_props == 'mean'){
+      props_boot <- props_boot %>% dplyr::select(state,bootstrap_mean,standard_error)
+    }else{
+      props_boot <- props_boot %>% dplyr::select(state,standard_error)
+    }
     
-    alpha_nb_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('Alpha.NB') %>% purrr::reduce(c)
+    props <- dplyr::left_join(props,props_boot)
+    
+    alpha_nb_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Alpha.NB') %>% purrr::reduce(c)
     
     alpha_nb <- c(alpha_nb, mean(alpha_nb_boot),median(alpha_nb_boot),sd(alpha_nb_boot))
-    names(alpha_nb) <- c('Alpha_NB','boot_mean_Alpha_NB','boot_median_Alpha_NB','boot_se_Alpha_NB')
+    names(alpha_nb) <- c('Alpha_NB','bootstrap_mean','bootstrap_median','standard_error')
     
-    C_est_boot <- object$bootstraps %>% purrr::map('par.mat') %>% purrr::map('C')%>% purrr::reduce(c)
+    C_est_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('C')%>% purrr::reduce(c)
     C_est <- c(C_est, mean(C_est_boot),median(C_est_boot),sd(C_est_boot))
-    names(C_est) <- c('C','boot_mean_C','boot_median_C','boot_se_C')
-    
-    if(!boot_mean){
-      nb <- nb %>% dplyr::select(-boot_mean)
-      zi <- zi %>% dplyr::select(-boot_mean)
-      evi <- evi %>% dplyr::select(-boot_mean)
-      pareto <- pareto %>% dplyr::select(-boot_mean)
-      mean_props<- mean_props %>% dplyr::select(-boot_mean_prop)
-    }
-    
-    if(!boot_se){
-      nb <- nb %>% dplyr::select(-boot_se)
-      zi <- zi %>% dplyr::select(-boot_se)
-      evi <- evi %>% dplyr::select(-boot_se)
-      pareto <- pareto %>% dplyr::select(-boot_se)
-      mean_props<- mean_props %>% dplyr::select(-boot_se_prop)
-    }
-    if(!p_approx){
-      nb <- nb %>% dplyr::select(-c(p_approx,sig_approx))
-      zi <- zi %>% dplyr::select(-c(p_approx,sig_approx))
-      evi <- evi %>% dplyr::select(-c(p_approx,sig_approx))
-      pareto <- pareto %>% dplyr::select(-c(p_approx,sig_approx))
-    }
-    
+    names(C_est) <- c('C','bootstrap_mean','bootstrap_median','standard_error')
   }
   
   
+  if(coef == 'original'){
+    nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB),Estimate = object$coef$Beta.NB)
+
+    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL),Estimate = object$coef$Beta.multinom.PL)
+    pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL),Estimate = object$coef$Beta.PL)
+  }else if(coef == 'bootstrapped_mean'){
+    nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
+                                                                                      dplyr::summarize(Estimate = mean(value)))
+
+    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+                                                                                                dplyr::summarize(Estimate = mean(value)))
+    pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
+                                                                                          dplyr::summarize(Estimate = mean(value)))
+  }else if(coef == 'bootstrapped_median'){
+    nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
+                                                                                      dplyr::summarize(Estimate = median(value)))
+
+    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+                                                                                                dplyr::summarize(Estimate = median(value)))
+    pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
+                                                                                          dplyr::summarize(Estimate = median(value)))
+  }
+  if(standard_error){
+    nb <- nb %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
+                                    dplyr::summarize(se = sd(value)))
+
+    evi <- evi %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+                                      dplyr::summarize(se = sd(value)))
+    pareto <- pareto %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
+                                            dplyr::summarize(se = sd(value)))
+  }
   
-  if(!is.null(object$bootstraps)){
-  res <- list(negative_binomial = list(summary = nb, alpha_nb = alpha_nb),
-              pareto = list(summary = pareto, C = C_est),
-              zero_inflation = list(summary = zi, props = mean_props),
-              extreme_value_inflation = list(summary = evi, props = mean_props),
+  if(approx_t_value){
+    nb <- nb %>% dplyr::mutate(approx_t = Estimate/se)
+    evi <- evi %>% dplyr::mutate(approx_t = Estimate/se)
+    pareto <- pareto %>% dplyr::mutate(approx_t = Estimate/se)
+  }
+  
+  if(p_value %in% c('bootstrapped','both')){
+    nb <- nb %>% dplyr::left_join(dplyr::left_join(nb_boot,nb) %>% dplyr::group_by(Variable) %>%
+                                    dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
+    
+    
+    evi <- evi %>% dplyr::left_join(dplyr::left_join(evi_boot,evi) %>% dplyr::group_by(Variable) %>%
+                                      dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
+    pareto <- pareto %>% dplyr::left_join(dplyr::left_join(pareto_boot,pareto) %>% dplyr::group_by(Variable) %>%
+                                            dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
+    
+  }else if(p_value %in% c('approx','both')){
+    nb <- nb %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    evi <- evi %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    pareto <- pareto %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+  }
+  
+  res <- list(coefficients = list(negative_binomial = nb, 
+                                  extreme_value_inflation = evi,
+                                  pareto = pareto),
+              model_statistics = list(Alpha_nb = alpha_nb,
+                                      C = C_est,
+                                      Obs = c(Obs = nobs,pars=npar,df=nobs-npar)),
+              component_proportions = props,
               n_failed_bootstraps = n_failed_bootstraps)
-  }else{
-    res <- list(negative_binomial = list(summary = nb, alpha_nb = alpha_nb),
-                pareto = list(summary = pareto, C = C_est),
-                zero_inflation = list(summary = zi, props = mean_props),
-                extreme_value_inflation = list(summary = evi, props = mean_props))
-  }
+  
   class(res) <- 'summary.evinb'
   
   return(res)
   
   
 }
+
 
 error_remover <- function(object){
   if('try-error' %in% class(object)){
@@ -390,5 +296,22 @@ error_remover <- function(object){
     return(object)
   }
 }
+
+bootstrap_p_value_calculator <- function(x,estimate = NULL, estimate_fallback = c('median','mean'), symmetric = TRUE){
+  if(is.null(estimate)){
+    estimate_fallback <- match.arg(estimate_fallback,c('median','mean'))
+    estimate <- do.call(estimate_fallback,list(x=x))
+  }
+  if(symmetric){
+   if(estimate>=0){
+     return(min(1,2*mean(x<0)))
+   }else{
+     return(min(1,2*mean(x>=0)))
+   } 
+  }else{
+    return(mean(abs(x-estimate)>=abs(estimate)))
+  }
+}
+
 
 

@@ -5,6 +5,7 @@
 #' @importFrom doRNG %dorng%
 #' @importFrom foreach %do%
 #' @importFrom foreach %dopar%
+#' @importFrom generics glance
 #' @importFrom generics tidy
 #' @importFrom magrittr %>%
 #' @importFrom Rcpp sourceCpp
