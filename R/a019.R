@@ -1,20 +1,4 @@
-#library(Rcpp)
-#sourceCpp('a019.cpp')
-
-#library(mvtnorm)
-#library(maxLik)
-
-# x.obj <- OBS.X.obj.r
-# y <- OBS.Y.r
-# control <- Control.r
-# ini.val <- Ini.Val.r
-# ini.val <- prel.val
-
-# x.obj <- x.obj
-# y <- y
-# ini.val <- prel.val
-# control <- control.warmup
-
+## Internal functions for the EVZINB and EVINB functions
 zerinfl.nb.pl.reg.cond.c.fun <- function(y,x.obj,ini.val,control){
 
 

@@ -2,29 +2,32 @@
 % Please edit documentation in R/glance_evzinb.R
 \name{glance.evzinb}
 \alias{glance.evzinb}
-\title{EVZINB tidy function}
+\alias{evzinb-glance}
+\alias{glance,}
+\alias{evzinb-method,}
+\alias{evinb-glance}
+\alias{evinb-method}
+\alias{glance.evinb}
+\title{EVZINB and EVINB glance functions}
 \usage{
 \method{glance}{evzinb}(x, ...)
+
+\method{glance}{evinb}(x, ...)
 }
 \arguments{
-\item{x}{}
+\item{x}{An EVZINB or EVINB object}
 
-\item{...}{}
-
-\item{coef}{}
-
-\item{p_value}{}
-
-\item{confint}{}
-
-\item{component}{}
+\item{...}{Further arguments to be passed to glance()}
 }
 \value{
 An EVZINB glance function
 }
 \description{
-EVZINB tidy function
+EVZINB and EVINB glance functions
 }
 \examples{
 tidy(evzinb)
+}
+\seealso{
+\code{\link[generics]{glance}}
 }

@@ -1,13 +1,12 @@
-#' EVZINB tidy function
+#' EVZINB and EVINB glance functions
 #'
-#' @param x 
-#' @param coef 
-#' @param p_value 
-#' @param confint 
-#' @param component 
-#' @param ... 
+#' @param x An EVZINB or EVINB object
+#' @param ... Further arguments to be passed to glance()
 #'
 #' @return An EVZINB glance function
+#' @aliases evzinb-glance glance, evzinb-method, 
+#' @aliases evinb-glance glance, evinb-method
+#' @seealso \code{\link[generics]{glance}}
 #' @export
 #'
 #' @examples tidy(evzinb)
@@ -29,7 +28,8 @@ glance.evzinb <- function(x,...){
   
 }
 
-glance.evzinb <- function(x,...){
+#' @rdname glance.evzinb
+glance.evinb <- function(x,...){
   
 
   res <- tibble::tibble(

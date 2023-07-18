@@ -285,7 +285,7 @@ bootrun_evzinb <- function(evzinb,block = NULL, timing=T,track_progress = F,
     boot_block_id <- sample(uniques,length(uniques),replace=T)
     boot_id <- boot_block_id %>% purrr::map(~which(block == .x)) %>% purrr::reduce(c)
 }
-  OBS.Y <- evzinb$data$y[boot_id,]
+  OBS.Y <- evzinb$data$y[boot_id]
 
   OBS.X.obj <- list()
   OBS.X.obj$X.multinom.ZC <- evzinb$data$x.multinom.zc[boot_id,]
