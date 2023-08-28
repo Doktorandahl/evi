@@ -4,12 +4,12 @@
 #' @param ... Further arguments to be passed to glance()
 #'
 #' @return An EVZINB glance function
-#' @aliases evzinb-glance glance, evzinb-method, 
-#' @aliases evinb-glance glance, evinb-method
 #' @seealso \code{\link[generics]{glance}}
 #' @export
 #'
-#' @examples tidy(evzinb)
+#' @examples data(genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' glance(model)
 glance.evzinb <- function(x,...){
   
 
@@ -28,7 +28,18 @@ glance.evzinb <- function(x,...){
   
 }
 
-#' @rdname glance.evzinb
+#' EVZINB and EVINB glance functions
+#'
+#' @param x An EVZINB or EVINB object
+#' @param ... Further arguments to be passed to glance()
+#'
+#' @return An EVZINB glance function
+#' @seealso \code{\link[generics]{glance}}
+#' @export
+#'
+#' @examples data(genevzinb)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' glance(model)
 glance.evinb <- function(x,...){
   
 

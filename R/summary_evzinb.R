@@ -1,14 +1,21 @@
 #' EVZINB summary function
 #'
 #' @param object an EVZINB object with bootstraps
-#' @param boot_mean Logical: Should the bootstrapped mean of the estimates be computed?
-#' @param boot_se Logical: Should the bootstrapped standard errors of the estimates be computed?
-#' @param p_approx Logical: Should the normal approximated p-value be computed? Not recommended unless the number of bootstraps is too low for bootstrapped p-values
+#' @param coef Type of coefficients. Original are the coefficient estimates from the non-bootstrapped version of the model. 'bootstrapped_mean' are the mean coefficients across bootstraps, and 'bootstrapped_median' are the median coefficients across bootstraps
+#' @param standard_error Should standard errors be computed?
+#' @param p_value What type of p_values should be computed? 'bootstrapped' are bootstrapped p_values through confidence interval inversion. 'approx' are p-values based on the t-value produced by dividing the coefficient with the standard error.
+#' @param bootstrapped_props Type of bootstrapped proportions of component proportions to be returned
+#' @param approx_t_value Should approximate t-values be returned
+#' @param symmetric_bootstrap_p Should bootstrap p-values be computed as symmetric (leaving alpha/2 percent in each tail)? FALSE gives non-symmetric, but narrower, intervals. TRUE corresponds most closely to conventional p-values.
+#' @param ... Additional arguments passed to the summary function
+#'
 #'
 #' @return An EVZINB summary object
 #' @export
 #'
-#' @examples summary(evzinb)
+#' @examples data(genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' summary(model)
 summary.evzinb <- function(object,coef = c('original','bootstrapped_mean','bootstrapped_median'),standard_error = TRUE, p_value = c('bootstrapped','approx','both','none'), bootstrapped_props = c('none','mean','median'),approx_t_value = TRUE,
                            symmetric_bootstrap_p = TRUE,...){
 
@@ -22,7 +29,7 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
   nobs <- nrow(object$data$x.nb)
   npar <- length(object$par.all)
   
-  props <- object$props %>% dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
+  props <- object$props %>% dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'state') %>%
     dplyr::group_by(state) %>%
     dplyr::summarize(mean_prop = mean(value)) %>%
     dplyr::slice(c(3,1,2))
@@ -36,16 +43,16 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
     object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
     n_failed_bootstraps <- n_bootstraps_org-length(object$bootstraps)
     
-  nb_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.NB') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable')
+  nb_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.NB') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'Variable')
 
-  zi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.ZC') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable')
+  zi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.ZC') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'Variable')
 
-  evi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') 
+  evi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'Variable') 
 
-  pareto_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') 
+  pareto_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'Variable') 
 
   props_boot <-  object$bootstraps %>% purrr::map('props') %>% purrr::map(colMeans) %>% purrr::reduce(rbind) %>%
-    dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
+    dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'state') %>%
     dplyr::group_by(state) %>%
     dplyr::summarize(bootstrap_mean = mean(value),bootstrap_median = median(value), standard_error = sd(value))
   
@@ -148,15 +155,22 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
 
 #' EVINB summary function
 #'
-#' @param object an EVZINB object with bootstraps
-#' @param boot_mean Logical: Should the bootstrapped mean of the estimates be computed?
-#' @param boot_se Logical: Should the bootstrapped standard errors of the estimates be computed?
-#' @param p_approx Logical: Should the normal approximated p-value be computed? Not recommended unless the number of bootstraps is too low for bootstrapped p-values
+#' @param object an EVINB object with bootstraps
+#' @param coef Type of coefficients. Original are the coefficient estimates from the non-bootstrapped version of the model. 'bootstrapped_mean' are the mean coefficients across bootstraps, and 'bootstrapped_median' are the median coefficients across bootstraps
+#' @param standard_error Should standard errors be computed?
+#' @param p_value What type of p_values should be computed? 'bootstrapped' are bootstrapped p_values through confidence interval inversion. 'approx' are p-values based on the t-value produced by dividing the coefficient with the standard error.
+#' @param bootstrapped_props Type of bootstrapped proportions of component proportions to be returned
+#' @param approx_t_value Should approximate t-values be returned
+#' @param symmetric_bootstrap_p Should bootstrap p-values be computed as symmetric (leaving alpha/2 percent in each tail)? FALSE gives non-symmetric, but narrower, intervals. TRUE corresponds most closely to conventional p-values.
+#' @param ... Additional arguments passed to the summary function
 #'
-#' @return An EVZINB summary object
+#'
+#' @return An EVINB summary object
 #' @export
 #'
-#' @examples summary(evinb)
+#' @examples data(genevzinb)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' summary(model)
 summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootstrapped_median'),standard_error = TRUE, p_value = c('bootstrapped','approx','both','none'), bootstrapped_props = c('none','mean','median'),approx_t_value = TRUE,
                           symmetric_bootstrap_p = TRUE,...){
   
@@ -170,10 +184,9 @@ summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootst
   nobs <- nrow(object$data$x.nb)
   npar <- length(object$par.all)
   
-  props <- object$props %>% dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
-    dplyr::filter(state != 'zero') %>%
+  props <- object$props %>% dplyr::as_tibble(.name_repair = ~c('negative_binomial','pareto')) %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'state') %>%
     dplyr::group_by(state) %>%
-    dplyr::summarize(mean_prop = mean(value)) %>%
+    dplyr::summarize(mean_prop = mean(value))
   alpha_nb <- c(object$coef$Alpha.NB)
   names(alpha_nb) <- c('Alpha_NB')
   C_est <- c(object$coef$C)
@@ -184,16 +197,15 @@ summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootst
     object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
     n_failed_bootstraps <- n_bootstraps_org-length(object$bootstraps)
     
-    nb_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.NB') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable')
+    nb_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.NB') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'Variable')
     
     
-    evi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') 
+    evi_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'Variable') 
     
-    pareto_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'Variable') 
+    pareto_boot <- object$bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.PL') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'Variable') 
     
     props_boot <-  object$bootstraps %>% purrr::map('props') %>% purrr::map(colMeans) %>% purrr::reduce(rbind) %>%
-      dplyr::as_tibble(.name_repair = ~c('zero','negative_binomial','pareto')) %>% tidyr::pivot_longer(everything(),names_to = 'state') %>%
-      dplyr::filter(state != 'zero') %>%
+      dplyr::as_tibble(.name_repair = ~c('negative_binomial','pareto')) %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'state') %>%
       dplyr::group_by(state) %>%
       dplyr::summarize(bootstrap_mean = mean(value),bootstrap_median = median(value), standard_error = sd(value))
     

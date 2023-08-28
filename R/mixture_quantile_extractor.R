@@ -1,5 +1,5 @@
 mixture_quantiles_2 <- function(quantile=0.975,pl_alphas,C,nb_mu,nb_alpha,probabilities,theoretical_max=1e20){
-  q <- round(qpareto(probabilities[,3]*quantile,C,pl_alphas))
+  q <- round(mistr::qpareto(probabilities[,3]*quantile,C,pl_alphas))
   q[which(q>theoretical_max)] <- theoretical_max
   ch <- q
   n <- 0
@@ -25,7 +25,7 @@ mixture_quantiles_2 <- function(quantile=0.975,pl_alphas,C,nb_mu,nb_alpha,probab
 }
 
 mixture_quantiles <- function(quantile=0.975,pl_alphas,C,nb_mu,nb_alpha,probabilities,theoretical_max=1e20){
-  q <- round(qpareto(probabilities[,3]*quantile,C,pl_alphas))
+  q <- round(mistr::qpareto(probabilities[,3]*quantile,C,pl_alphas))
   q[which(q>theoretical_max)] <- theoretical_max
   ch <- q
   n <- 0
@@ -52,6 +52,6 @@ mixture_quantiles <- function(quantile=0.975,pl_alphas,C,nb_mu,nb_alpha,probabil
 
 
 mixture_p <- function(x,pl_alphas,C,nb_mu,nb_alpha,probabilities){
-  p <- probabilities[,1] + probabilities[,2] * pnbinom(x,mu=nb_mu,size=1/nb_alpha) + probabilities[,3] * ppareto(x,C,pl_alphas)
+  p <- probabilities[,1] + probabilities[,2] * pnbinom(x,mu=nb_mu,size=1/nb_alpha) + probabilities[,3] * mistr::ppareto(x,C,pl_alphas)
   return(p)
 }

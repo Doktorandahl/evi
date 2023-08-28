@@ -16,7 +16,7 @@ double my_abs ( double x ) {
 
 //[[Rcpp::export]]
 double ell_nb_i_fun(arma::vec beta_nb, double alpha_nb, arma::vec x_nb_ext_i, int y_i){
-  int n_beta_nb = beta_nb.size();
+  // int n_beta_nb = beta_nb.size();
 
   double ell_nb_i = 0;
 
@@ -223,7 +223,7 @@ List update_bfgs_fun(arma::vec gamma_z_in, arma::vec gamma_pl_in,arma::vec beta_
   arma::vec beta_nb_old = beta_nb_in;
   arma::vec beta_nb_after_bfgs = beta_nb_in;
   double alpha_nb_old = alpha_nb_in;
-  double alpha_nb_after_bfgs = alpha_nb_in;
+// double alpha_nb_after_bfgs = alpha_nb_in;
   arma::vec beta_pl_old = beta_pl_in;
   arma::vec beta_pl_after_bfgs = beta_pl_in;
 
@@ -257,7 +257,7 @@ List update_bfgs_fun(arma::vec gamma_z_in, arma::vec gamma_pl_in,arma::vec beta_
       resp(i,2) = 0;
     }else if(y(i)>=c_pl){
       double d_nb = exp(ell_nb_i_fun(beta_nb_old,alpha_nb_old,trans(x_nb_ext.submat(i,0,i,n_nb-1)),y(i)));
-      double d_pl = ell_pl_i_fun(beta_pl_old,c_pl,trans(x_pl_ext.submat(i,0,i,n_pl-1)),y(i));
+      double d_pl = exp(ell_pl_i_fun(beta_pl_old,c_pl,trans(x_pl_ext.submat(i,0,i,n_pl-1)),y(i)));
       marginal_yx_i = props(i,1)*d_nb  + props(i,2)*d_pl;
       resp(i,0) = 0;
       resp(i,1) = props(i,1)*d_nb/marginal_yx_i;

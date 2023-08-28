@@ -18,11 +18,19 @@
 \arguments{
 \item{object}{an EVZINB object with bootstraps}
 
-\item{boot_mean}{Logical: Should the bootstrapped mean of the estimates be computed?}
+\item{coef}{Type of coefficients. Original are the coefficient estimates from the non-bootstrapped version of the model. 'bootstrapped_mean' are the mean coefficients across bootstraps, and 'bootstrapped_median' are the median coefficients across bootstraps}
 
-\item{boot_se}{Logical: Should the bootstrapped standard errors of the estimates be computed?}
+\item{standard_error}{Should standard errors be computed?}
 
-\item{p_approx}{Logical: Should the normal approximated p-value be computed? Not recommended unless the number of bootstraps is too low for bootstrapped p-values}
+\item{p_value}{What type of p_values should be computed? 'bootstrapped' are bootstrapped p_values through confidence interval inversion. 'approx' are p-values based on the t-value produced by dividing the coefficient with the standard error.}
+
+\item{bootstrapped_props}{Type of bootstrapped proportions of component proportions to be returned}
+
+\item{approx_t_value}{Should approximate t-values be returned}
+
+\item{symmetric_bootstrap_p}{Should bootstrap p-values be computed as symmetric (leaving alpha/2 percent in each tail)? FALSE gives non-symmetric, but narrower, intervals. TRUE corresponds most closely to conventional p-values.}
+
+\item{...}{Additional arguments passed to the summary function}
 }
 \value{
 An EVZINB summary object
@@ -31,5 +39,7 @@ An EVZINB summary object
 EVZINB summary function
 }
 \examples{
-summary(evzinb)
+data(genevzinb)
+model <- evzinb(y~x1+x2+x3,data=genevzinb)
+summary(model)
 }
