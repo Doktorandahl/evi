@@ -239,7 +239,6 @@ inner_nb <- function(bootstrap,data,formulas,init_theta){
   boot_nb$residuals <- NULL
   boot_nb$fitted.values <- NULL
   boot_nb$effects <- NULL
-  boot_nb$qr <- NULL
   }
   return(boot_nb)
 }

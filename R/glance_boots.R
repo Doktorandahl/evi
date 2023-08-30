@@ -20,7 +20,7 @@ glance.zinbboot <- function(x,...){
     alpha = 1/x$full_run$theta,
     aic = AIC(x$full_run),
     bic = BIC(x$full_run),
-    logLik = x$full_run$log.lik)
+    logLik = x$full_run$loglik)
   
   
   return(res)

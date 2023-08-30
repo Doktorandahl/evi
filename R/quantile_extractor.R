@@ -150,6 +150,13 @@ prob_from_evzinb <- function(object,newdata=NULL, return_data = F){
 
   pr_count <- 1-pr_zc-pr_pareto
 
+  if(min(pr_count)<0){
+    if(min(pr_count< -1e20)){
+      stop('Error in prediction, negative probabilities produced')
+    }else{
+      pr_count[which(pr_count<0)] <- 0
+    }
+  }
   out <- tibble::tibble(pr_zc=as.numeric(pr_zc),
                 pr_count = as.numeric(pr_count),
                 pr_pareto = as.numeric(pr_pareto))
