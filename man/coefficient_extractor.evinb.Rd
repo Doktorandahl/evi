@@ -4,12 +4,14 @@
 \alias{coefficient_extractor.evinb}
 \title{Bootstrap coefficient extractor}
 \usage{
-\method{coefficient_extractor}{evinb}(object, component = c("nb", "evi", "pareto", "all"))
+\method{coefficient_extractor}{evinb}(object, component = c("nb", "evi", "pareto", "all"), ...)
 }
 \arguments{
 \item{object}{A fitted evinb model with bootstraps}
 
 \item{component}{Which component should be extracted}
+
+\item{...}{Not in use}
 }
 \value{
 A tibble with coefficient values, one row per bootstrap and component
@@ -20,5 +22,5 @@ Bootstrap coefficient extractor
 \examples{
 data(genevzinb)
 model <- evinb(y~x1+x2+x3,data=genevzinb)
-coefficient_extractor.evinb(model, component = 'all')
+coefficient_extractor(model, component = 'all')
 }

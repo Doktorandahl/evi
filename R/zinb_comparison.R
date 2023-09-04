@@ -36,6 +36,8 @@ inv <- function(x){
 #' @param init_theta Optional initial value for theta in the NB specification
 #' @param nb_comparison Should comparison be made with a negative binomial model?
 #' @param zinb_comparison Should comparions be made with the zinb model?
+#' @param multicore Logical: should multiple cores be used
+#' @param ncores Number of cores if multicore is used
 #'
 #' @return A list with the original model as the first object and compared models as the following objects
 #' @export
@@ -96,6 +98,8 @@ compare_models <- function(object, nb_comparison=T, zinb_comparison=T, winsorize
       ncores <- parallel::detectCores()-1
     }
     doParallel::registerDoParallel(cores = ncores)
+  }else{
+    doParallel::stopImplicitCluster()
   }
 if(nb_comparison){
   if(!is.null(init_theta)){
@@ -334,7 +338,7 @@ if(is.null(newdata)){
 }
     if(!('matrix' %in% class(newdata))){
       forms <- znb_formula_extractor(znb$formula)
-      if(class(forms) == 'formula'){
+      if(is(forms, 'formula')){
       xdata_zi <- model.matrix(znb_formula_extractor(znb$formula),newdata)
       }else{
         xdata_zi <- model.matrix(forms$zi,newdata)[,-1]
@@ -347,7 +351,7 @@ if(is.null(newdata)){
 
   pr_zc <- exp(xdata_zi %*% znb$coefficients$zero)/(1+exp(xdata_zi %*% znb$coefficients$zero))
   pr_count <- 1-exp(xdata_zi %*% znb$coefficients$zero)/(1+exp(xdata_zi %*% znb$coefficients$zero))
-  out <- tibble(pr_zc=as.numeric(pr_zc),
+  out <- tibble::tibble(pr_zc=as.numeric(pr_zc),
                 pr_count = as.numeric(pr_count))
   return(out)
 }
@@ -359,7 +363,7 @@ count_from_znb <- function(znb,
   }
   if(!('matrix' %in% class(newdata))){
     forms <- znb_formula_extractor(znb$formula)
-    if(class(forms) == 'formula'){
+    if(is(forms,'formula')){
       xdata_nb <- model.matrix(znb_formula_extractor(znb$formula),newdata)
     }else{
       xdata_nb <- model.matrix(forms$nb,newdata)[,-1]

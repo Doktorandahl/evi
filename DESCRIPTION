@@ -1,17 +1,13 @@
 Package: evi
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Title: Inference with extreme value inflated count data
+Version: 0.8.0
+Description: This package allows users to model and draw inferences from extreme value inflated count data, and to evaluate these models and compare to non extreme-value inflated counterparts. The package is built to be compatible with standard presentation tools such as broom, tidy, and modelsummary.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
     dplyr,
-    maxLik,
     Rcpp,
     RcppArmadillo,
     foreach,
@@ -24,12 +20,19 @@ Imports:
     purrr,
     MASS,
     pscl,
-    stats,
-    MLmetrics
+    MLmetrics,
+    Rdpack,
+    stringi,
+    stringr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
 RoxygenNote: 7.2.3
+RdMacros: Rdpack
 Depends: 
     generics,
     R (>= 2.10)
+Authors@R: c(
+    person("David", "Randahl", , "david.randahl@pcr.uu.se", role = c("cre", "aut")),
+    person("Johan", "Vegelius", role = "aut")
+  )

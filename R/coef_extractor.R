@@ -22,14 +22,15 @@ coefficient_extractor <- function(object,...){
 #'
 #' @param object A fitted evzinb model with bootstraps
 #' @param component Which component should be extracted
+#' @param ... Not in use
 #'
 #' @return A tibble with coefficient values, one row per bootstrap and component
 #' @export
 #'
 #' @examples data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
-#' coefficient_extractor.evzinb(model, component = 'all')
-coefficient_extractor.evzinb <- function(object,component = c('nb','zi','evi','pareto','all')){
+#' coefficient_extractor(model, component = 'all')
+coefficient_extractor.evzinb <- function(object,component = c('nb','zi','evi','pareto','all'),...){
 
   component <- match.arg(component,c('nb','zi','evi','pareto','all'))
   
@@ -53,10 +54,11 @@ if(component == 'nb'){
 }else if(component == 'pareto'){
   return(pareto_boot)
 }else{
-  out <- dplyr::bind_rows(nb_boot %>% mutate(.component = 'nb'),
-                   zi_boot %>% mutate(.component = 'zi'),
-                   evi_boot %>% mutate(.component = 'evi'),
-                   pareto_boot %>% mutate(.component = 'pareto'))
+  out <- dplyr::bind_rows(nb_boot %>% dplyr::mutate(.component = 'nb'),
+                   zi_boot %>% dplyr::mutate(.component = 'zi'),
+                   evi_boot %>% dplyr::mutate(.component = 'evi'),
+                   pareto_boot %>% dplyr::mutate(.component = 'pareto'))
+  return(out)
 }
   
   
@@ -66,14 +68,15 @@ if(component == 'nb'){
 #'
 #' @param object A fitted evinb model with bootstraps
 #' @param component Which component should be extracted
+#' @param ... Not in use
 #'
 #' @return A tibble with coefficient values, one row per bootstrap and component
 #' @export
 #'
 #' @examples data(genevzinb)
 #' model <- evinb(y~x1+x2+x3,data=genevzinb)
-#' coefficient_extractor.evinb(model, component = 'all')
-coefficient_extractor.evinb <- function(object,component = c('nb','evi','pareto','all')){
+#' coefficient_extractor(model, component = 'all')
+coefficient_extractor.evinb <- function(object,component = c('nb','evi','pareto','all'),...){
   
   component <- match.arg(component,c('nb','evi','pareto','all'))
   
@@ -91,9 +94,10 @@ if(component == 'nb'){
 }else if(component == 'pareto'){
   return(pareto_boot)
 }else{
-  out <- dplyr::bind_rows(nb_boot %>% mutate(.component = 'nb'),
-                   evi_boot %>% mutate(.component = 'evi'),
-                   pareto_boot %>% mutate(.component = 'pareto'))
+  out <- dplyr::bind_rows(nb_boot %>% dplyr::mutate(.component = 'nb'),
+                   evi_boot %>% dplyr::mutate(.component = 'evi'),
+                   pareto_boot %>% dplyr::mutate(.component = 'pareto'))
+  return(out)
 }
 
 
@@ -103,15 +107,16 @@ if(component == 'nb'){
 #'
 #' @param object A fitted evinb model with bootstraps
 #' @param component Which component should be extracted
+#' @param ... Not in use
 #'
 #' @return A tibble with coefficient values, one row per bootstrap and component
 #' @export
 #'
 #' @examples data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' zinb_comp <- compare_models(model)
-#' coefficient_extractor.nbboot(zinb_comp$zinb)
-coefficient_extractor.zinbboot <- function(object,component = c('nb','zi','all')){
+#' coefficient_extractor(zinb_comp$zinb)
+coefficient_extractor.zinbboot <- function(object,component = c('nb','zi','all'),...){
   
   component <- match.arg(component,c('nb','zi','all'))
   
@@ -129,8 +134,9 @@ coefficient_extractor.zinbboot <- function(object,component = c('nb','zi','all')
   }else if(component == 'zi'){
     return(zi_boot)
   }else{
-    out <- dplyr::bind_rows(nb_boot %>% mutate(.component = 'nb'),
-                     zi_boot %>% mutate(.component = 'zi'))
+    out <- dplyr::bind_rows(nb_boot %>% dplyr::mutate(.component = 'nb'),
+                     zi_boot %>% dplyr::mutate(.component = 'zi'))
+    return(out)
   }
   
   
@@ -139,15 +145,16 @@ coefficient_extractor.zinbboot <- function(object,component = c('nb','zi','all')
 #' Bootstrap coefficient extractor
 #'
 #' @param object A fitted nbboot model with bootstraps
+#' @param ... Not in use
 #'
 #' @return A tibble with coefficient value, one row per bootstrap
 #' @export
 #'
 #' @examples data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' zinb_comp <- compare_models(model)
-#' coefficient_extractor.nbboot(zinb_comp$nb)
-coefficient_extractor.nbboot <- function(object){
+#' coefficient_extractor(zinb_comp$nb)
+coefficient_extractor.nbboot <- function(object,...){
 
   object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
   

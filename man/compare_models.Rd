@@ -30,6 +30,10 @@ compare_models(
 \item{cutoff_value}{Integer: Which observation should be used as a basis for winsorizing/razorising. E.g. 10 means that everything larger than the 10th observation will be winsorized/razorised}
 
 \item{init_theta}{Optional initial value for theta in the NB specification}
+
+\item{multicore}{Logical: should multiple cores be used}
+
+\item{ncores}{Number of cores if multicore is used}
 }
 \value{
 A list with the original model as the first object and compared models as the following objects

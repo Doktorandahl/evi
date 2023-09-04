@@ -6,13 +6,16 @@
 \usage{
 \method{coefficient_extractor}{evzinb}(
   object,
-  component = c("nb", "zi", "evi", "pareto", "all")
+  component = c("nb", "zi", "evi", "pareto", "all"),
+  ...
 )
 }
 \arguments{
 \item{object}{A fitted evzinb model with bootstraps}
 
 \item{component}{Which component should be extracted}
+
+\item{...}{Not in use}
 }
 \value{
 A tibble with coefficient values, one row per bootstrap and component
@@ -23,5 +26,5 @@ Bootstrap coefficient extractor
 \examples{
 data(genevzinb)
 model <- evzinb(y~x1+x2+x3,data=genevzinb)
-coefficient_extractor.evzinb(model, component = 'all')
+coefficient_extractor(model, component = 'all')
 }

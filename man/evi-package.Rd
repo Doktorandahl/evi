@@ -4,8 +4,17 @@
 \name{evi-package}
 \alias{evi}
 \alias{evi-package}
-\title{evi: What the Package Does (Title Case)}
+\title{evi: Inference with extreme value inflated count data}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+This package allows users to model and draw inferences from extreme value inflated count data, and to evaluate these models and compare to non extreme-value inflated counterparts. The package is built to be compatible with standard presentation tools such as broom, tidy, and modelsummary.
+}
+\author{
+\strong{Maintainer}: David Randahl \email{david.randahl@pcr.uu.se}
+
+Authors:
+\itemize{
+  \item Johan Vegelius
+}
+
 }
 \keyword{internal}
