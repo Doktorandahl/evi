@@ -4,7 +4,11 @@
 \alias{coefficient_extractor.evinb}
 \title{Bootstrap coefficient extractor}
 \usage{
-\method{coefficient_extractor}{evinb}(object, component = c("nb", "evi", "pareto", "all"), ...)
+\method{coefficient_extractor}{evinb}(
+  object,
+  component = c("nb", "evinf", "pareto", "all"),
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted evinb model with bootstraps}

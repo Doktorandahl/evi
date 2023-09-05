@@ -11,7 +11,7 @@ explog_calc <- function(pr_count,count,pr_pareto,C,pareto_alpha){
 #'
 #' @param object An evzinb object for which to produce predicted values
 #' @param newdata Optional new data (tibble) to produce predicted values from
-#' @param type Character string, 'harmonic' for the harmonic mean and 'explog' for exponentiated expected log, 'counts' for predicted count of the negative binomial component, 'pareto_alpha' for the predicted pareto alpha value, 'states' for the predicted component states (prior), 'count_state' for predicted probability of the count state, 'evi' for predicted probability of the pareto state,'zi' for the predicted probability of the zero state, 'all' for all predicted values, and 'quantile' for quantile prediction.
+#' @param type Character string, 'harmonic' for the harmonic mean and 'explog' for exponentiated expected log, 'counts' for predicted count of the negative binomial component, 'pareto_alpha' for the predicted pareto alpha value, 'states' for the predicted component states (prior), 'count_state' for predicted probability of the count state, 'evinf' for predicted probability of the pareto state,'zi' for the predicted probability of the zero state, 'all' for all predicted values, and 'quantile' for quantile prediction.
 #' @param ... Other arguments passed to predict function
 #' @param quantile Quantile for which to produce quantile prediction
 #' @param multicore Should multicore be used when calculating quantile prediction? Often it is enough to run quantile prediction on a single core, but in cases of large data or very skewed distributions it may be useful to run multicore
@@ -20,18 +20,18 @@ explog_calc <- function(pr_count,count,pr_pareto,C,pareto_alpha){
 #' @param confint Should confidence intervals be made for the predictions? Note: only available for vector type predictions and not 'states' and 'all'.
 #' @param conf_level What confidence level should be used for confidence intervals
 #'
-#' @return A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_alpha','zi','evi', 'count_state', and 'quantile' or a tibble of predicted values for type 'states' and 'all' or if confint=T
+#' @return A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_alpha','zi','evinf', 'count_state', and 'quantile' or a tibble of predicted values for type 'states' and 'all' or if confint=T
 #' @export
 #'
 #' @examples data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' predict(model)
 #' predict(model, type='all') # Getting all of the available predicted values
-predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','zi','evi','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
+predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
-  type <- match.arg(type,c('harmonic','explog','counts','pareto_alpha','zi','evi','count_state','states','all', 'quantile'))
+  type <- match.arg(type,c('harmonic','explog','counts','pareto_alpha','zi','evinf','count_state','states','all', 'quantile'))
   
   if(type %in% c('states','all') & confint){
     stop('Confidence interval prediction only available for vector outputs')
@@ -185,7 +185,7 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
                            ci_ub = quantile(pr_zc,qs[2])) %>% dplyr::select(-id)
         return(dplyr::bind_cols(tibble::tibble(pr_zc=prbs$pr_zc),ci))
       }
-      if(type == 'evi'){
+      if(type == 'evinf'){
         ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
           dplyr::summarize(ci_lb = quantile(pr_pareto,qs[1]),
                            ci_ub = quantile(pr_pareto,qs[2])) %>% dplyr::select(-id)
@@ -222,7 +222,7 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
       if(type == "zi"){
         return(prbs$pr_zc)
       }
-      if(type == "evi"){
+      if(type == "evinf"){
         return(prbs$pr_pareto)
       }
       if(type == "count_state"){
@@ -249,7 +249,7 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
 #'
 #' @param object An evinb object for which to produce predicted values
 #' @param newdata Optional new data (tibble) to produce predicted values from
-#' @param type Character string, 'harmonic' for the harmonic mean and 'explog' for exponentiated expected log, 'counts' for predicted count of the negative binomial component, 'pareto_alpha' for the predicted pareto alpha value, 'states' for the predicted component states (prior), 'count_state' for predicted probability of the count state, 'evi' for predicted probability of the pareto state, 'all' for all predicted values, and 'quantile' for quantile prediction.
+#' @param type Character string, 'harmonic' for the harmonic mean and 'explog' for exponentiated expected log, 'counts' for predicted count of the negative binomial component, 'pareto_alpha' for the predicted pareto alpha value, 'states' for the predicted component states (prior), 'count_state' for predicted probability of the count state, 'evinf' for predicted probability of the pareto state, 'all' for all predicted values, and 'quantile' for quantile prediction.
 #' @param ... Other arguments passed to predict function
 #' @param quantile Quantile for which to produce quantile prediction
 #' @param multicore Should multicore be used when calculating quantile prediction? Often it is enough to run quantile prediction on a single core, but in cases of large data or very skewed distributions it may be useful to run multicore
@@ -258,18 +258,18 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
 #' @param confint Should confidence intervals be made for the predictions? Note: only available for vector type predictions and not 'states' and 'all'.
 #' @param conf_level What confidence level should be used for confidence intervals
 #'
-#' @return A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_alpha','evi', 'count_state', and 'quantile' or a tibble of predicted values for type 'states' and 'all' or if confint=T
+#' @return A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_alpha','evinf', 'count_state', and 'quantile' or a tibble of predicted values for type 'states' and 'all' or if confint=T
 #' @export
 #'
 #' @examples data(genevzinb)
 #' model <- evinb(y~x1+x2+x3,data=genevzinb)
 #' predict(model)
 #' predict(model, type='all') # Getting all of the available predicted values
-predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','evi','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
+predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
-  type <- match.arg(type,c('harmonic','explog','counts','pareto_alpha','evi','count_state','states','all', 'quantile'))
+  type <- match.arg(type,c('harmonic','explog','counts','pareto_alpha','evinf','count_state','states','all', 'quantile'))
   
   if(type %in% c('states','all') & confint){
     stop('Confidence interval prediction only available for vector outputs')
@@ -415,7 +415,7 @@ predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','cou
       return(dplyr::bind_cols(tibble::tibble(pareto_alpha=alphs$pareto_alpha),ci))
     }
     
-    if(type == 'evi'){
+    if(type == 'evinf'){
       ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
         dplyr::summarize(ci_lb = quantile(pr_pareto,qs[1]),
                          ci_ub = quantile(pr_pareto,qs[2])) %>% dplyr::select(-id)
@@ -450,7 +450,7 @@ predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','cou
       return(alphs$pareto_alpha)
     }
     
-    if(type == "evi"){
+    if(type == "evinf"){
       return(prbs$pr_pareto)
     }
     if(type == "count_state"){

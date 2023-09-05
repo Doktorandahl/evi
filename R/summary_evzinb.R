@@ -80,14 +80,14 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
   if(coef == 'original'){
     nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB),Estimate = object$coef$Beta.NB)
     zi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.ZC),Estimate = object$coef$Beta.multinom.ZC)
-    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL),Estimate = object$coef$Beta.multinom.PL)
+    evinf <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL),Estimate = object$coef$Beta.multinom.PL)
     pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL),Estimate = object$coef$Beta.PL)
   }else if(coef == 'bootstrapped_mean'){
     nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
       dplyr::summarize(Estimate = mean(value)))
   zi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.ZC)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(Variable) %>%
                                                                                              dplyr::summarize(Estimate = mean(value)))
-  evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+  evinf <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
                                                                                              dplyr::summarize(Estimate = mean(value)))
   pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
                                                                                               dplyr::summarize(Estimate = mean(value)))
@@ -96,7 +96,7 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
                                                                                       dplyr::summarize(Estimate = median(value)))
     zi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.ZC)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(Variable) %>%
                                                                                                dplyr::summarize(Estimate = median(value)))
-    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+    evinf <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
                                                                                                 dplyr::summarize(Estimate = median(value)))
     pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
                                                                                           dplyr::summarize(Estimate = median(value)))
@@ -106,7 +106,7 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
                                                                                       dplyr::summarize(se = sd(value)))
     zi <- zi %>% dplyr::left_join(zi_boot %>% dplyr::group_by(Variable) %>%
                                                                                                dplyr::summarize(se = sd(value)))
-    evi <- evi %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+    evinf <- evinf %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
                                                                                                 dplyr::summarize(se = sd(value)))
     pareto <- pareto %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
                                                                                           dplyr::summarize(se = sd(value)))
@@ -115,7 +115,7 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
   if(approx_t_value){
     nb <- nb %>% dplyr::mutate(approx_t = Estimate/se)
     zi <- zi %>% dplyr::mutate(approx_t = Estimate/se)
-    evi <- evi %>% dplyr::mutate(approx_t = Estimate/se)
+    evinf <- evinf %>% dplyr::mutate(approx_t = Estimate/se)
     pareto <- pareto %>% dplyr::mutate(approx_t = Estimate/se)
   }
   
@@ -124,7 +124,7 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
                                     dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
     zi <- zi %>% dplyr::left_join(dplyr::left_join(zi_boot,zi) %>% dplyr::group_by(Variable) %>%
                                     dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
-    evi <- evi %>% dplyr::left_join(dplyr::left_join(evi_boot,evi) %>% dplyr::group_by(Variable) %>%
+    evinf <- evinf %>% dplyr::left_join(dplyr::left_join(evi_boot,evinf) %>% dplyr::group_by(Variable) %>%
                                       dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
     pareto <- pareto %>% dplyr::left_join(dplyr::left_join(pareto_boot,pareto) %>% dplyr::group_by(Variable) %>%
                                             dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
@@ -132,13 +132,13 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
   }else if(p_value %in% c('approx','both')){
     nb <- nb %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
     zi <- zi %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
-    evi <- evi %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    evinf <- evinf %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
     pareto <- pareto %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
   }
 
   res <- list(coefficients = list(negative_binomial = nb, 
                                     zero_inflation = zi,
-                                    extreme_value_inflation = evi,
+                                    extreme_value_inflation = evinf,
                                     pareto = pareto),
                 model_statistics = list(Alpha_nb = alpha_nb,
                                         C = C_est,
@@ -233,13 +233,13 @@ summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootst
   if(coef == 'original'){
     nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB),Estimate = object$coef$Beta.NB)
 
-    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL),Estimate = object$coef$Beta.multinom.PL)
+    evinf <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL),Estimate = object$coef$Beta.multinom.PL)
     pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL),Estimate = object$coef$Beta.PL)
   }else if(coef == 'bootstrapped_mean'){
     nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
                                                                                       dplyr::summarize(Estimate = mean(value)))
 
-    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+    evinf <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
                                                                                                 dplyr::summarize(Estimate = mean(value)))
     pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
                                                                                           dplyr::summarize(Estimate = mean(value)))
@@ -247,7 +247,7 @@ summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootst
     nb <- dplyr::tibble(Variable = names(object$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
                                                                                       dplyr::summarize(Estimate = median(value)))
 
-    evi <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+    evinf <- dplyr::tibble(Variable = names(object$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
                                                                                                 dplyr::summarize(Estimate = median(value)))
     pareto <- dplyr::tibble(Variable = names(object$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
                                                                                           dplyr::summarize(Estimate = median(value)))
@@ -256,7 +256,7 @@ summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootst
     nb <- nb %>% dplyr::left_join(nb_boot %>% dplyr::group_by(Variable) %>%
                                     dplyr::summarize(se = sd(value)))
 
-    evi <- evi %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
+    evinf <- evinf %>% dplyr::left_join(evi_boot %>% dplyr::group_by(Variable) %>%
                                       dplyr::summarize(se = sd(value)))
     pareto <- pareto %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(Variable) %>%
                                             dplyr::summarize(se = sd(value)))
@@ -264,7 +264,7 @@ summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootst
   
   if(approx_t_value){
     nb <- nb %>% dplyr::mutate(approx_t = Estimate/se)
-    evi <- evi %>% dplyr::mutate(approx_t = Estimate/se)
+    evinf <- evinf %>% dplyr::mutate(approx_t = Estimate/se)
     pareto <- pareto %>% dplyr::mutate(approx_t = Estimate/se)
   }
   
@@ -273,19 +273,19 @@ summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootst
                                     dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
     
     
-    evi <- evi %>% dplyr::left_join(dplyr::left_join(evi_boot,evi) %>% dplyr::group_by(Variable) %>%
+    evinf <- evinf %>% dplyr::left_join(dplyr::left_join(evi_boot,evinf) %>% dplyr::group_by(Variable) %>%
                                       dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
     pareto <- pareto %>% dplyr::left_join(dplyr::left_join(pareto_boot,pareto) %>% dplyr::group_by(Variable) %>%
                                             dplyr::summarize(bootstrap_p = bootstrap_p_value_calculator(value,Estimate[1],symmetric=symmetric_bootstrap_p)))
     
   }else if(p_value %in% c('approx','both')){
     nb <- nb %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
-    evi <- evi %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    evinf <- evinf %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
     pareto <- pareto %>% dplyr::mutate(approx_p = 2*(1-pt(abs(approx_t),df = nobs-npar)))
   }
   
   res <- list(coefficients = list(negative_binomial = nb, 
-                                  extreme_value_inflation = evi,
+                                  extreme_value_inflation = evinf,
                                   pareto = pareto),
               model_statistics = list(Alpha_nb = alpha_nb,
                                       C = C_est,

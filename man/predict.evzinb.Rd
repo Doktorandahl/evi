@@ -7,7 +7,7 @@
 \method{predict}{evzinb}(
   object,
   newdata = NULL,
-  type = c("harmonic", "explog", "counts", "pareto_alpha", "zi", "evi", "count_state",
+  type = c("harmonic", "explog", "counts", "pareto_alpha", "zi", "evinf", "count_state",
     "states", "all", "quantile"),
   pred = c("original", "bootstrap_median", "bootstrap_mean"),
   quantile = NULL,
@@ -23,7 +23,7 @@
 
 \item{newdata}{Optional new data (tibble) to produce predicted values from}
 
-\item{type}{Character string, 'harmonic' for the harmonic mean and 'explog' for exponentiated expected log, 'counts' for predicted count of the negative binomial component, 'pareto_alpha' for the predicted pareto alpha value, 'states' for the predicted component states (prior), 'count_state' for predicted probability of the count state, 'evi' for predicted probability of the pareto state,'zi' for the predicted probability of the zero state, 'all' for all predicted values, and 'quantile' for quantile prediction.}
+\item{type}{Character string, 'harmonic' for the harmonic mean and 'explog' for exponentiated expected log, 'counts' for predicted count of the negative binomial component, 'pareto_alpha' for the predicted pareto alpha value, 'states' for the predicted component states (prior), 'count_state' for predicted probability of the count state, 'evinf' for predicted probability of the pareto state,'zi' for the predicted probability of the zero state, 'all' for all predicted values, and 'quantile' for quantile prediction.}
 
 \item{pred}{Type of prediction to be used, defaults to the original prediction from the fitted model, with alternatives being the bootstrapped median or mean. Note that bootstrap mean may yield infinite values, especially when doing quantile prediction}
 
@@ -40,7 +40,7 @@
 \item{...}{Other arguments passed to predict function}
 }
 \value{
-A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_alpha','zi','evi', 'count_state', and 'quantile' or a tibble of predicted values for type 'states' and 'all' or if confint=T
+A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_alpha','zi','evinf', 'count_state', and 'quantile' or a tibble of predicted values for type 'states' and 'all' or if confint=T
 }
 \description{
 Predictions from evzinb object

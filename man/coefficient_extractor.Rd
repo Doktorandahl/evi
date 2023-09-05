@@ -9,7 +9,7 @@ coefficient_extractor(object, ...)
 \arguments{
 \item{object}{a fitted model with bootstraps of class evzinb, evinb, nbboot, or zinbboot}
 
-\item{...}{Component to be extracted (not for nbboot). Alternatives are 'nb','zi','evi','pareto', and 'all'}
+\item{...}{Component to be extracted (not for nbboot). Alternatives are 'nb','zi','evinf','pareto', and 'all'}
 }
 \value{
 A tibble with coefficient values, one row per bootstrap and component

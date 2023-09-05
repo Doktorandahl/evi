@@ -6,7 +6,7 @@
 \usage{
 \method{tidy}{evzinb}(
   x,
-  component = c("zi", "evi", "count", "pareto", "all"),
+  component = c("zi", "evinf", "count", "pareto", "all"),
   coef_type = c("original", "bootstrap_mean", "bootstrap_median"),
   standard_error = TRUE,
   p_value = c("bootstrapped", "approx", "none"),

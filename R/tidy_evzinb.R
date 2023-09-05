@@ -17,12 +17,12 @@
 #' @examples data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' tidy(model)
-tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef_type = c('original','bootstrap_mean','bootstrap_median'), standard_error=TRUE, p_value = c('bootstrapped','approx','none'), confint = c('none','bootstrapped','approx'),conf_level = 0.95,approx_t_value = TRUE,symmetric_bootstrap_p = TRUE,...){
+tidy.evzinb <- function(x,component = c('zi','evinf','count','pareto','all'), coef_type = c('original','bootstrap_mean','bootstrap_median'), standard_error=TRUE, p_value = c('bootstrapped','approx','none'), confint = c('none','bootstrapped','approx'),conf_level = 0.95,approx_t_value = TRUE,symmetric_bootstrap_p = TRUE,...){
 
   coef_type <- match.arg(coef_type, c('original','bootstrap_mean','bootstrap_median'))
   p_value <- match.arg(p_value, c('bootstrapped','approx','none'))
   confint <- match.arg(confint, c('none','bootstrapped','approx'))
-  component <- match.arg(component, c('zi','evi','count','pareto','all'))
+  component <- match.arg(component, c('zi','evinf','count','pareto','all'))
   
   
   inv_leftjoin <- invisible(dplyr::left_join)
@@ -48,14 +48,14 @@ tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef
   if(coef_type == 'original'){
     nb <- dplyr::tibble(term = names(x$coef$Beta.NB),estimate = x$coef$Beta.NB)
     zi <- dplyr::tibble(term = names(x$coef$Beta.multinom.ZC),estimate = x$coef$Beta.multinom.ZC)
-    evi <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL),estimate = x$coef$Beta.multinom.PL)
+    evinf <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL),estimate = x$coef$Beta.multinom.PL)
     pareto <- dplyr::tibble(term = names(x$coef$Beta.PL),estimate = x$coef$Beta.PL)
   }else if(coef_type == 'bootstrap_mean'){
     nb <- dplyr::tibble(term = names(x$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
                                                                                       dplyr::summarize(estimate = mean(value)),by='term')
     zi <- dplyr::tibble(term = names(x$coef$Beta.multinom.ZC)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(term) %>%
                                                                                                dplyr::summarize(estimate = mean(value)),by='term')
-    evi <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL)) %>% 
+    evinf <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL)) %>% 
       dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
                          dplyr::summarize(estimate = mean(value)),by='term')
     pareto <- dplyr::tibble(term = names(x$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(term) %>%
@@ -65,7 +65,7 @@ tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef
                                                                                       dplyr::summarize(estimate = median(value)),by='term')
     zi <- dplyr::tibble(term = names(x$coef$Beta.multinom.ZC)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(term) %>%
                                                                                                dplyr::summarize(estimate = median(value)),by='term')
-    evi <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
+    evinf <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
                                                                                                 dplyr::summarize(estimate = median(value)),by='term')
     pareto <- dplyr::tibble(term = names(x$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(term) %>%
                                                                                           dplyr::summarize(estimate = median(value)),by='term')
@@ -75,7 +75,7 @@ tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef
                                     dplyr::summarize(std.error = sd(value)))
     zi <- zi %>% dplyr::left_join(zi_boot %>% dplyr::group_by(term) %>%
                                     dplyr::summarize(std.error = sd(value)))
-    evi <- evi %>% dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
+    evinf <- evinf %>% dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
                                       dplyr::summarize(std.error = sd(value)))
     pareto <- pareto %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(term) %>%
                                             dplyr::summarize(std.error = sd(value)))
@@ -84,7 +84,7 @@ tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef
   if(approx_t_value){
     nb <- nb %>% dplyr::mutate(statistic = estimate/std.error)
     zi <- zi %>% dplyr::mutate(statistic = estimate/std.error)
-    evi <- evi %>% dplyr::mutate(statistic = estimate/std.error)
+    evinf <- evinf %>% dplyr::mutate(statistic = estimate/std.error)
     pareto <- pareto %>% dplyr::mutate(statistic = estimate/std.error)
   }
   
@@ -93,7 +93,7 @@ tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef
                                     dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
     zi <- zi %>% dplyr::left_join(dplyr::left_join(zi_boot,zi) %>% dplyr::group_by(term) %>%
                                     dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
-    evi <- evi %>% dplyr::left_join(dplyr::left_join(evi_boot,evi) %>% dplyr::group_by(term) %>%
+    evinf <- evinf %>% dplyr::left_join(dplyr::left_join(evi_boot,evinf) %>% dplyr::group_by(term) %>%
                                       dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
     pareto <- pareto %>% dplyr::left_join(dplyr::left_join(pareto_boot,pareto) %>% dplyr::group_by(term) %>%
                                             dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
@@ -101,21 +101,21 @@ tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef
   }else if(p_value == 'approx'){
     nb <- nb %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
     zi <- zi %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
-    evi <- evi %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    evinf <- evinf %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
     pareto <- pareto %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
   }
   
   if(component == 'zi'){
     return(zi)
-  }else if(component == 'evi'){
-    return(evi)
+  }else if(component == 'evinf'){
+    return(evinf)
   }else if(component == 'count'){
     return(nb)
   }else if(component == 'pareto'){
     return(pareto)
   }else if(component == 'all'){
     return(dplyr::bind_rows(dplyr::mutate(zi,y.level='zi',.before=1),
-                            dplyr::mutate(evi,y.level='evi',.before=1),
+                            dplyr::mutate(evinf,y.level='evinf',.before=1),
                             dplyr::mutate(nb,y.level='count',.before=1),
                             dplyr::mutate(pareto,y.level='pareto',.before=1)))
   }
@@ -144,12 +144,12 @@ return(res)
 #' @examples data(genevzinb)
 #' model <- evinb(y~x1+x2+x3,data=genevzinb)
 #' tidy(model)
-tidy.evinb <- function(x,component = c('evi','count','pareto','all'), coef_type = c('original','bootstrap_mean','bootstrap_median'), standard_error=TRUE, p_value = c('bootstrapped','approx','none'), confint = c('none','bootstrapped','approx'),conf_level = 0.95,approx_t_value = TRUE,symmetric_bootstrap_p = TRUE,...){
+tidy.evinb <- function(x,component = c('evinf','count','pareto','all'), coef_type = c('original','bootstrap_mean','bootstrap_median'), standard_error=TRUE, p_value = c('bootstrapped','approx','none'), confint = c('none','bootstrapped','approx'),conf_level = 0.95,approx_t_value = TRUE,symmetric_bootstrap_p = TRUE,...){
   
   coef_type <- match.arg(coef_type, c('original','bootstrap_mean','bootstrap_median'))
   p_value <- match.arg(p_value, c('bootstrapped','approx','none'))
   confint <- match.arg(confint, c('none','bootstrapped','approx'))
-  component <- match.arg(component, c('evi','count','pareto','all'))
+  component <- match.arg(component, c('evinf','count','pareto','all'))
   
   
   inv_leftjoin <- invisible(dplyr::left_join)
@@ -172,13 +172,13 @@ tidy.evinb <- function(x,component = c('evi','count','pareto','all'), coef_type 
   
   if(coef_type == 'original'){
     nb <- dplyr::tibble(term = names(x$coef$Beta.NB),estimate = x$coef$Beta.NB)
-      evi <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL),estimate = x$coef$Beta.multinom.PL)
+      evinf <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL),estimate = x$coef$Beta.multinom.PL)
     pareto <- dplyr::tibble(term = names(x$coef$Beta.PL),estimate = x$coef$Beta.PL)
   }else if(coef_type == 'bootstrap_mean'){
     nb <- dplyr::tibble(term = names(x$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
                                                                              dplyr::summarize(estimate = mean(value)),by='term')
  
-    evi <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL)) %>% 
+    evinf <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL)) %>% 
       dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
                          dplyr::summarize(estimate = mean(value)),by='term')
     pareto <- dplyr::tibble(term = names(x$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(term) %>%
@@ -187,7 +187,7 @@ tidy.evinb <- function(x,component = c('evi','count','pareto','all'), coef_type 
     nb <- dplyr::tibble(term = names(x$coef$Beta.NB)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
                                                                              dplyr::summarize(estimate = median(value)),by='term')
  
-    evi <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
+    evinf <- dplyr::tibble(term = names(x$coef$Beta.multinom.PL)) %>% dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
                                                                                        dplyr::summarize(estimate = median(value)),by='term')
     pareto <- dplyr::tibble(term = names(x$coef$Beta.PL)) %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(term) %>%
                                                                                  dplyr::summarize(estimate = median(value)),by='term')
@@ -196,7 +196,7 @@ tidy.evinb <- function(x,component = c('evi','count','pareto','all'), coef_type 
     nb <- nb %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
                                     dplyr::summarize(std.error = sd(value)))
   
-    evi <- evi %>% dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
+    evinf <- evinf %>% dplyr::left_join(evi_boot %>% dplyr::group_by(term) %>%
                                       dplyr::summarize(std.error = sd(value)))
     pareto <- pareto %>% dplyr::left_join(pareto_boot %>% dplyr::group_by(term) %>%
                                             dplyr::summarize(std.error = sd(value)))
@@ -205,7 +205,7 @@ tidy.evinb <- function(x,component = c('evi','count','pareto','all'), coef_type 
   if(approx_t_value){
     nb <- nb %>% dplyr::mutate(statistic = estimate/std.error)
   
-    evi <- evi %>% dplyr::mutate(statistic = estimate/std.error)
+    evinf <- evinf %>% dplyr::mutate(statistic = estimate/std.error)
     pareto <- pareto %>% dplyr::mutate(statistic = estimate/std.error)
   }
   
@@ -213,26 +213,26 @@ tidy.evinb <- function(x,component = c('evi','count','pareto','all'), coef_type 
     nb <- nb %>% dplyr::left_join(dplyr::left_join(nb_boot,nb) %>% dplyr::group_by(term) %>%
                                     dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
   
-    evi <- evi %>% dplyr::left_join(dplyr::left_join(evi_boot,evi) %>% dplyr::group_by(term) %>%
+    evinf <- evinf %>% dplyr::left_join(dplyr::left_join(evi_boot,evinf) %>% dplyr::group_by(term) %>%
                                       dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
     pareto <- pareto %>% dplyr::left_join(dplyr::left_join(pareto_boot,pareto) %>% dplyr::group_by(term) %>%
                                             dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
     
   }else if(p_value == 'approx'){
     nb <- nb %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
-     evi <- evi %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+     evinf <- evinf %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
     pareto <- pareto %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
   }
   
-if(component == 'evi'){
-    return(evi)
+if(component == 'evinf'){
+    return(evinf)
   }else if(component == 'count'){
     return(nb)
   }else if(component == 'pareto'){
     return(pareto)
   }else if(component == 'all'){
     return(dplyr::bind_rows(
-                            dplyr::mutate(evi,y.level='evi',.before=1),
+                            dplyr::mutate(evinf,y.level='evinf',.before=1),
                             dplyr::mutate(nb,y.level='count',.before=1),
                             dplyr::mutate(pareto,y.level='pareto',.before=1)))
   }

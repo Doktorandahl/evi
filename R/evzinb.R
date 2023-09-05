@@ -27,7 +27,7 @@
 #' @param init.C Initial value of C. Integer which should be within the C_lim range.
 #' @param verbose Should progress be printed for the first run of evzinb
 #' 
-#' @return An object of class 'evi' containing XX
+#' @return An object of class 'evinf' containing XX
 #' @noRd
 run_evzinb <- function(formula_nb,
                        formula_zi = NULL,
@@ -236,7 +236,7 @@ return(object)
 #' @importFrom foreach %do%
 #' @importFrom foreach %dopar%
 #'
-#' @return An object of class 'evi' containing XX
+#' @return An object of class 'evinf' containing XX
 #' @export
 #'
 #' @examples data(genevzinb)

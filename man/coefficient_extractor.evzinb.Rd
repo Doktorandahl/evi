@@ -6,7 +6,7 @@
 \usage{
 \method{coefficient_extractor}{evzinb}(
   object,
-  component = c("nb", "zi", "evi", "pareto", "all"),
+  component = c("nb", "zi", "evinf", "pareto", "all"),
   ...
 )
 }

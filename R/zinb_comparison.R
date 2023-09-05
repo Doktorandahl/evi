@@ -282,9 +282,9 @@ inner_zinb <- function(bootstrap,data,formulas){
 #     }
 #     nb_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.NB') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'nb')
 #     zi_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.ZC') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'zi')
-#     evi_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'evi')
+#     evi_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'evinf')
 #     pl_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.PL') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'pl')
-#     out <- list(nb = nb_coefficients,zi = zi_coefficients,evi = evi_coefficients,pl = pl_coefficients)
+#     out <- list(nb = nb_coefficients,zi = zi_coefficients,evinf = evi_coefficients,pl = pl_coefficients)
 #     return(out)
 #   }else if('negbin' %in% class(bootstraps[[1]])){
 #     failed_boots <- bootstraps %>% purrr::map(class) %>% purrr::map(~'try-error' %in% .x) %>% reduce(c) %>% which()
@@ -422,11 +422,11 @@ quantiles_from_nb <- function(quantile,nb,
 }
 
 
-predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts','zi','evi','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
+predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
-  type <- match.arg(type,c('predicted','counts','zi','evi','count_state','states','all', 'quantile'))
+  type <- match.arg(type,c('predicted','counts','zi','evinf','count_state','states','all', 'quantile'))
   
   if(type %in% c('states','all') & confint){
     stop('Confidence interval prediction only available for vector outputs')

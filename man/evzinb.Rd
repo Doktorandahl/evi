@@ -102,7 +102,7 @@ evzinb(
 \item{verbose}{Logical: should progress of the full run of the model be tracked?}
 }
 \value{
-An object of class 'evi' containing XX
+An object of class 'evinf' containing XX
 }
 \description{
 Running an extreme value and zero inflated negative binomial model with bootstrapping

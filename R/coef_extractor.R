@@ -4,7 +4,7 @@
 #' Bootstrap coefficient extractor
 #'
 #' @param object a fitted model with bootstraps of class evzinb, evinb, nbboot, or zinbboot
-#' @param ... Component to be extracted (not for nbboot). Alternatives are 'nb','zi','evi','pareto', and 'all'
+#' @param ... Component to be extracted (not for nbboot). Alternatives are 'nb','zi','evinf','pareto', and 'all'
 #'
 #' @return A tibble with coefficient values, one row per bootstrap and component
 #' @export
@@ -30,9 +30,9 @@ coefficient_extractor <- function(object,...){
 #' @examples data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' coefficient_extractor(model, component = 'all')
-coefficient_extractor.evzinb <- function(object,component = c('nb','zi','evi','pareto','all'),...){
+coefficient_extractor.evzinb <- function(object,component = c('nb','zi','evinf','pareto','all'),...){
 
-  component <- match.arg(component,c('nb','zi','evi','pareto','all'))
+  component <- match.arg(component,c('nb','zi','evinf','pareto','all'))
   
   object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
   
@@ -49,14 +49,14 @@ if(component == 'nb'){
   return(nb_boot)
 }else if(component == 'zi'){
   return(zi_boot)
-}else if(component == 'evi'){
+}else if(component == 'evinf'){
   return(evi_boot)
 }else if(component == 'pareto'){
   return(pareto_boot)
 }else{
   out <- dplyr::bind_rows(nb_boot %>% dplyr::mutate(.component = 'nb'),
                    zi_boot %>% dplyr::mutate(.component = 'zi'),
-                   evi_boot %>% dplyr::mutate(.component = 'evi'),
+                   evi_boot %>% dplyr::mutate(.component = 'evinf'),
                    pareto_boot %>% dplyr::mutate(.component = 'pareto'))
   return(out)
 }
@@ -76,9 +76,9 @@ if(component == 'nb'){
 #' @examples data(genevzinb)
 #' model <- evinb(y~x1+x2+x3,data=genevzinb)
 #' coefficient_extractor(model, component = 'all')
-coefficient_extractor.evinb <- function(object,component = c('nb','evi','pareto','all'),...){
+coefficient_extractor.evinb <- function(object,component = c('nb','evinf','pareto','all'),...){
   
-  component <- match.arg(component,c('nb','evi','pareto','all'))
+  component <- match.arg(component,c('nb','evinf','pareto','all'))
   
   object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
   
@@ -89,13 +89,13 @@ coefficient_extractor.evinb <- function(object,component = c('nb','evi','pareto'
 
 if(component == 'nb'){
   return(nb_boot)
-}else if(component == 'evi'){
+}else if(component == 'evinf'){
   return(evi_boot)
 }else if(component == 'pareto'){
   return(pareto_boot)
 }else{
   out <- dplyr::bind_rows(nb_boot %>% dplyr::mutate(.component = 'nb'),
-                   evi_boot %>% dplyr::mutate(.component = 'evi'),
+                   evi_boot %>% dplyr::mutate(.component = 'evinf'),
                    pareto_boot %>% dplyr::mutate(.component = 'pareto'))
   return(out)
 }

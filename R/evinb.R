@@ -23,7 +23,7 @@
 #' @param init.Alpha.NB Initial value of Alpha NB, integer or NULL (giving a starting value of 0)
 #' @param init.C Initial value of C. Integer which should be within the C_lim range.
 #'
-#' @return An object of class 'evi' containing XX
+#' @return An object of class 'evinf' containing XX
 #' @noRd
 run_evinb <- function(formula_nb,
                        formula_evi = NULL,
@@ -303,7 +303,7 @@ if(track_progress){
 #' @importFrom foreach %do%
 #' @importFrom foreach %dopar%
 #'
-#' @return An object of class 'evi' containing XX
+#' @return An object of class 'evinf' containing XX
 #' @export
 #'
 #' @examples data(genevzinb)

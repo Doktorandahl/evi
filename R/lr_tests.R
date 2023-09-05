@@ -33,7 +33,7 @@ lr_test_evzinb <- function(object, vars, single = TRUE, bootstrap = FALSE){
     reruns <- foreach::foreach(i = 1:length(formulas_dfs)) %do%
       evzinb(formulas_dfs[[i]]$formulas$nb,
              formulas_dfs[[i]]$formulas$zi,
-             formulas_dfs[[i]]$formulas$evi,
+             formulas_dfs[[i]]$formulas$evinf,
              formulas_dfs[[i]]$formulas$pareto,
              data = object$data$data,
              bootstrap = F)
@@ -103,7 +103,7 @@ formula_var_remover <- function(formulas,vars){
   out$df <- df
   out$formulas <- list(nb = new_nb,
                        zi = new_zi,
-                       evi = new_evi,
+                       evinf = new_evi,
                        pareto = new_pareto)
   
   

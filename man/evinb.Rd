@@ -93,7 +93,7 @@ evinb(
 \item{verbose}{Should progress be printed for the first run of evinb}
 }
 \value{
-An object of class 'evi' containing XX
+An object of class 'evinf' containing XX
 }
 \description{
 Running an extreme value inflated negative binomial model with bootstrapping
