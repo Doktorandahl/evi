@@ -11,8 +11,8 @@ Allows users to model and draw inferences from extreme value inflated count data
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/Doktorandahl/evi}
-  \item Report bugs at \url{https://github.com/Doktorandahl/evi/issues}
+  \item \url{https://github.com/Doktorandahl/evinf}
+  \item Report bugs at \url{https://github.com/Doktorandahl/evinf/issues}
 }
 
 }

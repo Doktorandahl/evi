@@ -36,5 +36,5 @@ Authors@R: c(
     person("David", "Randahl", , "david.randahl@pcr.uu.se", role = c("cre", "aut")),
     person("Johan", "Vegelius", role = "aut")
   )
-URL: https://github.com/Doktorandahl/evi
-BugReports: https://github.com/Doktorandahl/evi/issues
+URL: https://github.com/Doktorandahl/evinf
+BugReports: https://github.com/Doktorandahl/evinf/issues
