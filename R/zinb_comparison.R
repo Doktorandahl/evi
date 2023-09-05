@@ -1,31 +1,6 @@
 inv <- function(x){
   1/x
 }
-# 
-# evzinb_compare_zinb <- function(evzinb){
-# 
-#   dv_f <- all.vars(evzinb$formulas$formula_nb)[1]
-#   iv_nb <- all.vars(evzinb$formulas$formula_nb)[-1]
-#   iv_zi <- all.vars(evzinb$formulas$formula_zi)[-1]
-# 
-#   f_zinb <- as.formula(paste(dv_f,'~',paste(iv_nb,collapse = '+'),'|',paste(iv_zi,collapse = '+')))
-#   full_zinb <- try(pscl::zeroinfl(f_zinb,data = evzinb$data$data,dist = 'negbin'))
-# 
-#   bootstraps_zinb <- foreach::foreach(i = 1:length(evzinb$bootstraps)) %do%
-#     inner_zinb(evzinb$bootstraps[[i]],data = evzinb$data$data,formulas = evzinb$formulas)
-#   names(bootstraps_zinb) <- names(evzinb$bootstraps)
-#   bootstraps_zinb <- bootstraps_zinb %>% purrr::map(mr_inner)
-# 
-#   zinb <- list(full_run = full_zinb,
-#                bootstraps = bootstraps_zinb)
-# class(zinb) <- 'zinbbboot'
-# 
-#   out <- list()
-#   out$evzinb <- evzinb
-#   out$zinb <- zinb
-#   return(out)
-# }
-
 
 #' Function to compare evzinb or evinb models with zinb and nb models
 #'
@@ -222,6 +197,7 @@ class(zinb_razor) <- 'zinbboot'
   out$zinb_razor <- zinb_razor
     }
   }
+  class(out) <- 'evzinbcomp'
   return(out)
 }
 

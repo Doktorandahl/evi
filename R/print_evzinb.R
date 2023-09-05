@@ -51,3 +51,21 @@ print.evinb <- function(x,...){
       '\n Number of failed bootstraps: ', length(x$bootstraps) - x$bootstraps %>% purrr::discard(~'try-error' %in% class(.x)) %>% length(),
       '\n Parameters: ', length(x$par.all))
 }
+
+#' Compare_models print function
+#'
+#' @param x A fitted evinb model
+#' @param ... Not used
+#' @return An evinb print function
+#' @export
+#'
+#' @examples data(genevzinb)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' print(model)
+print.evzinbcomp <- function(x,...){
+  comp_class <- class(x[[1]])
+  
+  cat('\n','Model comparison of ', comp_class,
+      '\n ', 'Number of compared models: ', length(x)-1,
+      '\n Number of bootstraps:', length(x[[1]]$bootstraps))
+}
