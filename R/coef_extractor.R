@@ -10,9 +10,11 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #' coefficient_extractor(model, component = 'all')
+#' }
 coefficient_extractor <- function(object,...){
   UseMethod('coefficient_extractor')
 }
@@ -27,9 +29,12 @@ coefficient_extractor <- function(object,...){
 #' @return A tibble with coefficient values, one row per bootstrap and component
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #' coefficient_extractor(model, component = 'all')
+#' }
 coefficient_extractor.evzinb <- function(object,component = c('nb','zi','evinf','pareto','all'),...){
 
   component <- match.arg(component,c('nb','zi','evinf','pareto','all'))
@@ -73,9 +78,12 @@ if(component == 'nb'){
 #' @return A tibble with coefficient values, one row per bootstrap and component
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #' coefficient_extractor(model, component = 'all')
+#' }
 coefficient_extractor.evinb <- function(object,component = c('nb','evinf','pareto','all'),...){
   
   component <- match.arg(component,c('nb','evinf','pareto','all'))
@@ -112,10 +120,12 @@ if(component == 'nb'){
 #' @return A tibble with coefficient values, one row per bootstrap and component
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{data(genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #' zinb_comp <- compare_models(model)
 #' coefficient_extractor(zinb_comp$zinb)
+#' }
 coefficient_extractor.zinbboot <- function(object,component = c('nb','zi','all'),...){
   
   component <- match.arg(component,c('nb','zi','all'))
@@ -150,10 +160,13 @@ coefficient_extractor.zinbboot <- function(object,component = c('nb','zi','all')
 #' @return A tibble with coefficient value, one row per bootstrap
 #' @export
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' zinb_comp <- compare_models(model)
 #' coefficient_extractor(zinb_comp$nb)
+#' }
 coefficient_extractor.nbboot <- function(object,...){
 
   object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))

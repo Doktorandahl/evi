@@ -22,7 +22,9 @@ A tibble with one row per performed LR test
 Likelihood ratio test for individual variables of evzinb
 }
 \examples{
+\dontrun{
 data(genevzinb)
-model <- evzinb(y~x1+x2+x3,data=genevzinb)
+model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
  lr_test_evzinb(model,'x1')
+ }
 }

@@ -42,7 +42,9 @@ A list with the original model as the first object and compared models as the fo
 Function to compare evzinb or evinb models with zinb and nb models
 }
 \examples{
+\dontrun{
 data(genevzinb)
 model <- evzinb(y~x1+x2+x3,data=genevzinb)
 compare_models(model)
+}
 }

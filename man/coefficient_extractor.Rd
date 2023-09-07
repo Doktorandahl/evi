@@ -18,7 +18,9 @@ A tibble with coefficient values, one row per bootstrap and component
 Bootstrap coefficient extractor
 }
 \examples{
+\dontrun{
 data(genevzinb)
-model <- evzinb(y~x1+x2+x3,data=genevzinb)
+model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 coefficient_extractor(model, component = 'all')
+}
 }

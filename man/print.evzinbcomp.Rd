@@ -18,7 +18,9 @@ An evinb print function
 Compare_models print function
 }
 \examples{
+\dontrun{
 data(genevzinb)
 model <- evinb(y~x1+x2+x3,data=genevzinb)
 print(model)
+}
 }

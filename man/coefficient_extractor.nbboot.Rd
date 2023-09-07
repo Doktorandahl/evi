@@ -18,8 +18,10 @@ A tibble with coefficient value, one row per bootstrap
 Bootstrap coefficient extractor
 }
 \examples{
+\dontrun{
 data(genevzinb)
 model <- evzinb(y~x1+x2+x3,data=genevzinb)
 zinb_comp <- compare_models(model)
 coefficient_extractor(zinb_comp$nb)
+}
 }

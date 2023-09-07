@@ -17,9 +17,12 @@ inv <- function(x){
 #' @return A list with the original model as the first object and compared models as the following objects
 #' @export
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' compare_models(model)
+#' }
 compare_models <- function(object, nb_comparison=T, zinb_comparison=T, winsorize=T, razorize=T, cutoff_value=10, init_theta=NULL, multicore = F, ncores=NULL){
 
   dv_f <- all.vars(object$formulas$formula_nb)[1]
@@ -241,51 +244,7 @@ inner_zinb <- function(bootstrap,data,formulas){
   return(boot_zinb)
 }
 
-# extract_bootstrap_coefficients_zinbcompare <- function(zinbcompare){
-# 
-#   coefs <- zinbcompare %>% purrr::map(coefficient_finder) %>% purrr::map(bind_rows) %>% purrr::map2(names(zinbcompare),~dplyr::mutate(.x,model=.y)) %>% bind_rows()
-# return(coefs)
-# }
-# 
-# 
-# coefficient_finder <- function(model){
-#   bootstraps <- model$bootstraps
-#   if('list' %in% class(bootstraps[[1]])){
-#     failed_boots <- bootstraps %>% purrr::map(class) %>% purrr::map(~'try-error' %in% .x) %>% reduce(c) %>% which()
-#     n_failed <- length(failed_boots)
-#     if(n_failed>0){
-#     bootstraps <- bootstraps[-failed_boots]
-#     }
-#     nb_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.NB') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'nb')
-#     zi_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.ZC') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'zi')
-#     evi_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.multinom.PL') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'evinf')
-#     pl_coefficients <- bootstraps %>% purrr::map('coef') %>% purrr::map('Beta.PL') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'pl')
-#     out <- list(nb = nb_coefficients,zi = zi_coefficients,evinf = evi_coefficients,pl = pl_coefficients)
-#     return(out)
-#   }else if('negbin' %in% class(bootstraps[[1]])){
-#     failed_boots <- bootstraps %>% purrr::map(class) %>% purrr::map(~'try-error' %in% .x) %>% reduce(c) %>% which()
-#     n_failed <- length(failed_boots)
-#     if(n_failed>0){
-#       bootstraps <- bootstraps[-failed_boots]
-#     }
-#     nb_coefficients <- bootstraps %>% purrr::map('coefficients') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'nb')
-#     out <- list(nb = nb_coefficients)
-#     return(out)
-#   }else if('zeroinfl' %in% class(bootstraps[[1]])){
-#     failed_boots <- bootstraps %>% purrr::map(class) %>% purrr::map(~'try-error' %in% .x) %>% reduce(c) %>% which()
-#     n_failed <- length(failed_boots)
-#     if(n_failed>0){
-#       bootstraps <- bootstraps[-failed_boots]
-#     }
-#     nb_coefficients <- bootstraps %>% purrr::map('coefficients') %>% purrr::map('count') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'nb')
-#     zi_coefficients <- bootstraps %>% purrr::map('coefficients') %>% purrr::map('zero') %>% reduce(bind_rows) %>% dplyr::mutate(component = 'zi')
-#     out <- list(nb = nb_coefficients,zi = zi_coefficients)
-#     return(out)
-#   }
-# 
-# }
 
-# 
 model_remover <- function(obj){
   if('evzinb' %in% class(obj$full_run)){
     return(obj)
@@ -398,6 +357,22 @@ quantiles_from_nb <- function(quantile,nb,
 }
 
 
+#' Prediction for zinbboot
+#'
+#' @param object a fitted zinbboot object
+#' @param newdata Data to make predictions on
+#' @param type What prediction should be computed?
+#' @param pred Prediction type, 'original', 'bootstra_median', or 'bootstrap_mean'
+#' @param quantile Quantile for quantile prediction
+#' @param confint Should confidence intervals be created?
+#' @param conf_level Confidence level when predicting with CIs
+#' @param multicore Logical: should multiple cores be used?
+#' @param ncores Number of cores to use
+#' @param ... Not used
+#' 
+#' @importFrom rlang :=
+#'
+#' @return Predictions from zinbboot
 predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))

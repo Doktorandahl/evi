@@ -11,9 +11,12 @@
 #' @return A tibble with one row per performed LR test
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #'  lr_test_evzinb(model,'x1')
+#'  }
 lr_test_evzinb <- function(object, vars, single = TRUE, bootstrap = FALSE){
   if(!is(vars, 'list')){
     if(single){

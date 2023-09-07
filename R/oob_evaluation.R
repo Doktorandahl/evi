@@ -8,9 +8,12 @@
 #' @return A vector of oob evaluation metrics of the length of the number of bootstraps in the evzinb/evinb object.
 #' @export
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' oob_evaluation(model)
+#' }
 oob_evaluation <- function(object,predict_type = c('harmonic','explog'),
                            metric = c('rmsle','rmse','mse','mae')){
   
@@ -48,27 +51,4 @@ if(model_type=="evzinb"){
 }
 
 
-# oob_inner_old <- function(bootstrap,data,predict_type){
-#   data <- data[-bootstrap$boot_id,]
-#   
-#   predictions <- predict.evzinb(bootstrap,newdata=data,type='both',include_index = model.response(model.frame(bootstrap$formulas$formula_nb,data)))
-#   predictions <- predictions %>% mutate(sq_logerror_harmonic = (log1p(index)-log1p(harmonic_pred))^2,
-#                                         sq_error_harmonic = (index-harmonic_pred)^2,
-#                                         sq_logerror_explog = (log1p(index)-log1p(explog_pred))^2,
-#                                         sq_error_explog = (index-explog_pred)^2)
-#   out <- predictions %>% summarize(rmsle_harmonic = sqrt(mean(sq_logerror_harmonic)),
-#                                    rmse_harmonic = sqrt(mean(sq_error_harmonic)),
-#                                    rmsle_explog = sqrt(mean(sq_logerror_explog)),
-#                                    rmse_explog = sqrt(mean(sq_error_explog)))
-#   if(predict_type=='harmonic'){
-#     out <- out %>% select(-contains('explog'))
-#   }else if(predict_type == 'explog'){
-#     out <- out %>% select(-contains('harmonic'))
-#   }
-#   return(out)
-# }
-# 
-# 
-# 
-  
   

@@ -303,11 +303,14 @@ if(track_progress){
 #' @importFrom foreach %do%
 #' @importFrom foreach %dopar%
 #'
-#' @return An object of class 'evinf' containing XX
+#' @return An object of class 'evinb'
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
+#' }
 evinb <- function(formula_nb,
                             formula_evi = NULL,
                             formula_pareto = NULL,

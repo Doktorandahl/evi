@@ -18,7 +18,9 @@ An evzinb print function
 EVZINB print function
 }
 \examples{
+\dontrun{
 data(genevzinb)
 model <- evzinb(y~x1+x2+x3,data=genevzinb)
 print(model)
+}
 }

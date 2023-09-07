@@ -7,9 +7,12 @@
 #' @seealso \code{\link[generics]{glance}}
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #' glance(model)
+#' }
 glance.evzinb <- function(x,...){
   
 
@@ -37,9 +40,12 @@ glance.evzinb <- function(x,...){
 #' @seealso \code{\link[generics]{glance}}
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #' glance(model)
+#' }
 glance.evinb <- function(x,...){
   
 

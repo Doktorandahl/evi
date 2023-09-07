@@ -16,10 +16,13 @@
 #' 
 #' @export
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' zinb_comp <- compare_models(model)
 #' tidy(zinb_comp$zinb)
+#' }
 tidy.zinbboot <- function(x, component = c('zi','count','all'),coef_type = c('original','bootstrap_mean','bootstrap_median'), standard_error=TRUE, p_value = c('bootstrapped','approx','none'), confint = c('none','bootstrapped','approx'),conf_level = 0.95,approx_t_value = TRUE,symmetric_bootstrap_p = TRUE,...){
   
   coef_type <- match.arg(coef_type, c('original','bootstrap_mean','bootstrap_median'))
@@ -37,9 +40,9 @@ tidy.zinbboot <- function(x, component = c('zi','count','all'),coef_type = c('or
     x$bootstraps <- x$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
     n_failed_bootstraps <- n_bootstraps_org-length(x$bootstraps)
     
-    nb_boot <- x$bootstraps %>% purrr::map('coefficients') %>% purrr::map('count') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'term')
+    nb_boot <- x$bootstraps %>% purrr::map('coefficients') %>% purrr::map('count') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'term')
     
-    zi_boot <- x$bootstraps %>% purrr::map('coefficients') %>% purrr::map('zero') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'term')
+    zi_boot <- x$bootstraps %>% purrr::map('coefficients') %>% purrr::map('zero') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'term')
     
     
   }
@@ -119,10 +122,13 @@ tidy.zinbboot <- function(x, component = c('zi','count','all'),coef_type = c('or
 #' 
 #' @export
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' zinb_comp <- compare_models(model)
 #' tidy(zinb_comp$nb) 
+#' }
 tidy.nbboot <- function(x, coef_type = c('original','bootstrap_mean','bootstrap_median'), standard_error=TRUE, p_value = c('bootstrapped','approx','none'), confint = c('none','bootstrapped','approx'),conf_level = 0.95,approx_t_value = TRUE,symmetric_bootstrap_p = TRUE,include_ylev = FALSE,...){
   
   coef_type <- match.arg(coef_type, c('original','bootstrap_mean','bootstrap_median'))
@@ -139,7 +145,7 @@ tidy.nbboot <- function(x, coef_type = c('original','bootstrap_mean','bootstrap_
     x$bootstraps <- x$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))
     n_failed_bootstraps <- n_bootstraps_org-length(x$bootstraps)
     
-    nb_boot <- x$bootstraps %>% purrr::map('coefficients') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(everything(),names_to = 'term')
+    nb_boot <- x$bootstraps %>% purrr::map('coefficients') %>% dplyr::bind_rows() %>% tidyr::pivot_longer(dplyr::everything(),names_to = 'term')
     
   }
   

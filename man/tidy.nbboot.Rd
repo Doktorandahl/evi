@@ -45,8 +45,10 @@ A tidy function for a bootstrapped nb model
 Tidy function for nbboot
 }
 \examples{
+\dontrun{
 data(genevzinb)
 model <- evzinb(y~x1+x2+x3,data=genevzinb)
 zinb_comp <- compare_models(model)
 tidy(zinb_comp$nb) 
+}
 }

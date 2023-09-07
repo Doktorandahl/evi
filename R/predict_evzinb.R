@@ -21,12 +21,18 @@ explog_calc <- function(pr_count,count,pr_pareto,C,pareto_alpha){
 #' @param conf_level What confidence level should be used for confidence intervals
 #'
 #' @return A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_alpha','zi','evinf', 'count_state', and 'quantile' or a tibble of predicted values for type 'states' and 'all' or if confint=T
+#' 
+#' @importFrom rlang :=
+#' 
 #' @export
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' predict(model)
 #' predict(model, type='all') # Getting all of the available predicted values
+#' }
 predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
@@ -260,11 +266,16 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
 #'
 #' @return A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_alpha','evinf', 'count_state', and 'quantile' or a tibble of predicted values for type 'states' and 'all' or if confint=T
 #' @export
+#' 
+#' @importFrom rlang :=
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evinb(y~x1+x2+x3,data=genevzinb)
 #' predict(model)
 #' predict(model, type='all') # Getting all of the available predicted values
+#' }
 predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))

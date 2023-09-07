@@ -7,10 +7,13 @@
 #' @seealso \code{\link[generics]{glance}}
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #' zinb_comp <- compare_models(model)
 #' glance(zinb_comp$zinb)
+#' }
 glance.zinbboot <- function(x,...){
   
   
@@ -37,10 +40,13 @@ glance.zinbboot <- function(x,...){
 #' @seealso \code{\link[generics]{glance}}
 #' @export
 #'
-#' @examples data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 #' zinb_comp <- compare_models(model)
 #' glance(zinb_comp$nb)
+#' }
 glance.nbboot <- function(x,...){
   
   

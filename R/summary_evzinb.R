@@ -13,9 +13,12 @@
 #' @return An EVZINB summary object
 #' @export
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #' summary(model)
+#' }
 summary.evzinb <- function(object,coef = c('original','bootstrapped_mean','bootstrapped_median'),standard_error = TRUE, p_value = c('bootstrapped','approx','both','none'), bootstrapped_props = c('none','mean','median'),approx_t_value = TRUE,
                            symmetric_bootstrap_p = TRUE,...){
 
@@ -168,9 +171,12 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
 #' @return An EVINB summary object
 #' @export
 #'
-#' @examples data(genevzinb)
+#' @examples 
+#' \dontrun{
+#' data(genevzinb)
 #' model <- evinb(y~x1+x2+x3,data=genevzinb)
 #' summary(model)
+#' }
 summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootstrapped_median'),standard_error = TRUE, p_value = c('bootstrapped','approx','both','none'), bootstrapped_props = c('none','mean','median'),approx_t_value = TRUE,
                           symmetric_bootstrap_p = TRUE,...){
   

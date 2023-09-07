@@ -24,7 +24,9 @@ A vector of oob evaluation metrics of the length of the number of bootstraps in 
 Out of bag predictive performance of EVZINB and EVINB models
 }
 \examples{
+\dontrun{
 data(genevzinb)
 model <- evzinb(y~x1+x2+x3,data=genevzinb)
 oob_evaluation(model)
+}
 }

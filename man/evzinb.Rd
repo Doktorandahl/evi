@@ -102,12 +102,14 @@ evzinb(
 \item{verbose}{Logical: should progress of the full run of the model be tracked?}
 }
 \value{
-An object of class 'evinf' containing XX
+An object of class 'evzinb'
 }
 \description{
 Running an extreme value and zero inflated negative binomial model with bootstrapping
 }
 \examples{
+\dontrun{
 data(genevzinb)
-model <- evzinb(y~x1+x2+x3,data=genevzinb)
+model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
+}
 }

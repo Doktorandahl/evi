@@ -39,7 +39,9 @@ An EVINB summary object
 EVINB summary function
 }
 \examples{
+\dontrun{
 data(genevzinb)
 model <- evinb(y~x1+x2+x3,data=genevzinb)
 summary(model)
+}
 }

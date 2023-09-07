@@ -93,12 +93,14 @@ evinb(
 \item{verbose}{Should progress be printed for the first run of evinb}
 }
 \value{
-An object of class 'evinf' containing XX
+An object of class 'evinb'
 }
 \description{
 Running an extreme value inflated negative binomial model with bootstrapping
 }
 \examples{
+\dontrun{
 data(genevzinb)
-model <- evinb(y~x1+x2+x3,data=genevzinb)
+model <- evinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
+}
 }

@@ -6,7 +6,7 @@
 \usage{
 \method{tidy}{evinb}(
   x,
-  component = c("evinf", "count", "pareto", "all"),
+  component = c("evi", "count", "pareto", "all"),
   coef_type = c("original", "bootstrap_mean", "bootstrap_median"),
   standard_error = TRUE,
   p_value = c("bootstrapped", "approx", "none"),
@@ -45,7 +45,9 @@ An EVINB tidy function
 EVINB tidy function
 }
 \examples{
+\dontrun{
 data(genevzinb)
 model <- evinb(y~x1+x2+x3,data=genevzinb)
 tidy(model)
+}
 }
