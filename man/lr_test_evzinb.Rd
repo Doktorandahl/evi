@@ -24,7 +24,7 @@ Likelihood ratio test for individual variables of evzinb
 \examples{
 \dontrun{
 data(genevzinb)
-model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
+model <- evzinb(y~x1+x2+x3,data=genevzinb)
  lr_test_evzinb(model,'x1')
  }
 }

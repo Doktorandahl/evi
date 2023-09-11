@@ -14,7 +14,8 @@ quantiles_from_evzinb <- function(object, quantile,
                                   newdata = NULL,
                                   return_data =F,multicore = T,ncores=NULL){
 
-
+  i <- 'temp_iter'
+  
 
   ## Estimate component probabilities for all individuals
   prbs <- prob_from_evzinb(object,
@@ -76,6 +77,7 @@ quantiles_from_evinb <- function(object, quantile,
                                   return_data =F,multicore = T,ncores=NULL){
   
   
+  i <- 'temp_iter'
   
   ## Estimate component probabilities for all individuals
   prbs <- prob_from_evinb(object,

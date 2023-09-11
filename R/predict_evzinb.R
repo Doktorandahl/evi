@@ -42,6 +42,7 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
   if(type %in% c('states','all') & confint){
     stop('Confidence interval prediction only available for vector outputs')
   }
+  i <- 'temp_iter'
   
   if(pred %in% c('bootstrap_median','bootstrap_mean') | confint){
     object$bootstraps <- object$bootstraps %>% purrr::discard(~'try-error' %in% class(.x))    
@@ -113,43 +114,43 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
                         pareto_alpha = alphs$pareto_alpha)
   
   }else if(pred=='bootstrap_median'){
-    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(median) %>% dplyr::select(-id)
-    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(median) %>% dplyr::select(-id)
-    alphs <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(median) %>% dplyr::select(-id)
+    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(median) %>% dplyr::select(-.data$id)
+    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(median) %>% dplyr::select(-.data$id)
+    alphs <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(median) %>% dplyr::select(-.data$id)
     
     if(!is.null(q_boot)){
-      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-        dplyr::summarize_all(median) %>% dplyr::select(-id) %>% dplyr::pull(q)
+      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+        dplyr::summarize_all(median) %>% dplyr::select(-.data$id) %>% dplyr::pull(.data$q)
     }else{
       q <- NULL
     }
     
-    harmonic <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(harmonic = median(harmonic)) %>% dplyr::pull(harmonic)
+    harmonic <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(harmonic = median(.data$harmonic)) %>% dplyr::pull(.data$harmonic)
     
-    explog <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(explog = median(explog)) %>% dplyr::pull(explog)
+    explog <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(explog = median(.data$explog)) %>% dplyr::pull(.data$explog)
     
     C_est <- median(C_boot)
   }else if(pred=='bootstrap_mean'){
     warning('Bootstrapped mean predictions are experimental and may yield infinite values')
-    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(mean) %>% dplyr::select(-id)
-    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(mean) %>% dplyr::select(-id)
-    alphs <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(mean) %>% dplyr::select(-id)
+    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(mean) %>% dplyr::select(-.data$id)
+    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(mean) %>% dplyr::select(-.data$id)
+    alphs <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(mean) %>% dplyr::select(-.data$id)
     if(!is.null(q_boot)){
-      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-        dplyr::summarize_all(mean) %>% dplyr::select(-id) %>% dplyr::pull(q)
+      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+        dplyr::summarize_all(mean) %>% dplyr::select(-.data$id) %>% dplyr::pull(.data$q)
     }else{
       q <- NULL
     }
     C_est <- mean(C_boot)
-    harmonic <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(harmonic = mean(harmonic)) %>% dplyr::pull(harmonic)
+    harmonic <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(harmonic = mean(harmonic)) %>% dplyr::pull(harmonic)
     
-    explog <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(explog = mean(explog)) %>% dplyr::pull(explog)
+    explog <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(explog = mean(explog)) %>% dplyr::pull(explog)
   }
 
 
@@ -160,54 +161,54 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
       qs <- c((1-conf_level)/2,1-(1-conf_level)/2)
       
       if(type == 'harmonic'){
-      ci <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(harmonic,qs[1]),
-                         ci_ub = quantile(harmonic,qs[2])) %>%
-        dplyr::select(-id)
+      ci <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$harmonic,qs[1]),
+                         ci_ub = quantile(.data$harmonic,qs[2])) %>%
+        dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(harmonic=harmonic),ci))
       }
       if(type == 'explog'){
-        ci <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-          dplyr::summarize(ci_lb = quantile(explog,qs[1]),
-                           ci_ub = quantile(explog,qs[2])) %>% dplyr::select(-id)
+        ci <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+          dplyr::summarize(ci_lb = quantile(.data$explog,qs[1]),
+                           ci_ub = quantile(.data$explog,qs[2])) %>% dplyr::select(-.data$id)
         return(dplyr::bind_cols(tibble::tibble(explog=explog),ci))
       }
       if(type == 'counts'){
-        ci <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-          dplyr::summarize(ci_lb = quantile(count,qs[1]),
-                           ci_ub = quantile(count,qs[2])) %>% dplyr::select(-id)
+        ci <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+          dplyr::summarize(ci_lb = quantile(.data$count,qs[1]),
+                           ci_ub = quantile(.data$count,qs[2])) %>% dplyr::select(-.data$id)
         return(dplyr::bind_cols(tibble::tibble(count=cnts$count),ci))
         
       }
       if(type == 'pareto_alpha'){
-        ci <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-          dplyr::summarize(ci_lb = quantile(pareto_alpha,qs[1]),
-                           ci_ub = quantile(pareto_alpha,qs[2])) %>% dplyr::select(-id)
+        ci <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+          dplyr::summarize(ci_lb = quantile(.data$pareto_alpha,qs[1]),
+                           ci_ub = quantile(.data$pareto_alpha,qs[2])) %>% dplyr::select(-.data$id)
         return(dplyr::bind_cols(tibble::tibble(pareto_alpha=alphs$pareto_alpha),ci))
       }
       if(type == 'zi'){
-        ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-          dplyr::summarize(ci_lb = quantile(pr_zc,qs[1]),
-                           ci_ub = quantile(pr_zc,qs[2])) %>% dplyr::select(-id)
+        ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+          dplyr::summarize(ci_lb = quantile(.data$pr_zc,qs[1]),
+                           ci_ub = quantile(.data$pr_zc,qs[2])) %>% dplyr::select(-.data$id)
         return(dplyr::bind_cols(tibble::tibble(pr_zc=prbs$pr_zc),ci))
       }
       if(type == 'evinf'){
-        ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-          dplyr::summarize(ci_lb = quantile(pr_pareto,qs[1]),
-                           ci_ub = quantile(pr_pareto,qs[2])) %>% dplyr::select(-id)
+        ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+          dplyr::summarize(ci_lb = quantile(.data$pr_pareto,qs[1]),
+                           ci_ub = quantile(.data$pr_pareto,qs[2])) %>% dplyr::select(-.data$id)
         return(dplyr::bind_cols(tibble::tibble(pr_pareto=prbs$pr_pareto),ci))
       }
       if(type == 'count_state'){
-        ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-          dplyr::summarize(ci_lb = quantile(pr_count,qs[1]),
-                           ci_ub = quantile(pr_count,qs[2])) %>% dplyr::select(-id)
+        ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+          dplyr::summarize(ci_lb = quantile(.data$pr_count,qs[1]),
+                           ci_ub = quantile(.data$pr_count,qs[2])) %>% dplyr::select(-.data$id)
         return(dplyr::bind_cols(tibble::tibble(pr_count=prbs$pr_count),ci))
       }
       if(type == 'quantile'){
         warning('Confidence interval prediction with Quantiles may yield unstable results')
-        ci <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-          dplyr::summarize(ci_lb = quantile(q,qs[1]),
-                           ci_ub = quantile(q,qs[2])) %>% dplyr::select(-id)
+        ci <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+          dplyr::summarize(ci_lb = quantile(.data$q,qs[1]),
+                           ci_ub = quantile(.data$q,qs[2])) %>% dplyr::select(-.data$id)
         q_name <- paste0('q',100*quantile)
         return(dplyr::bind_cols(tibble::tibble(!!q_name:=q),ci))
       }
@@ -281,6 +282,7 @@ predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','cou
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
   type <- match.arg(type,c('harmonic','explog','counts','pareto_alpha','evinf','count_state','states','all', 'quantile'))
+  i <- 'temp_iter'
   
   if(type %in% c('states','all') & confint){
     stop('Confidence interval prediction only available for vector outputs')
@@ -353,43 +355,43 @@ predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','cou
     explog <- explog_calc(pr_count = prbs$pr_count,count = cnts$count,pr_pareto = prbs$pr_pareto,C = C_est,pareto_alpha = alphs$pareto_alpha)
     
   }else if(pred=='bootstrap_median'){
-    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(median) %>% dplyr::select(-id)
-    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(median) %>% dplyr::select(-id)
-    alphs <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(median) %>% dplyr::select(-id)
+    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(median) %>% dplyr::select(-.data$id)
+    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(median) %>% dplyr::select(-.data$id)
+    alphs <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(median) %>% dplyr::select(-.data$id)
     
     if(!is.null(q_boot)){
-      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-        dplyr::summarize_all(median) %>% dplyr::select(-id) %>% dplyr::pull(q)
+      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+        dplyr::summarize_all(median) %>% dplyr::select(-.data$id) %>% dplyr::pull(.data$q)
     }else{
       q <- NULL
     }
     
-    harmonic <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(harmonic = median(harmonic)) %>% dplyr::pull(harmonic)
+    harmonic <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(harmonic = median(.data$harmonic)) %>% dplyr::pull(.data$harmonic)
     
-    explog <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(explog = median(explog)) %>% dplyr::pull(explog)
+    explog <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(explog = median(.data$explog)) %>% dplyr::pull(.data$explog)
     
     C_est <- median(C_boot)
   }else if(pred=='bootstrap_mean'){
     warning('Bootstrapped mean predictions are experimental and may yield infinite values')
-    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(mean) %>% dplyr::select(-id)
-    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(mean) %>% dplyr::select(-id)
-    alphs <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(mean) %>% dplyr::select(-id)
+    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(mean) %>% dplyr::select(-.data$id)
+    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(mean) %>% dplyr::select(-.data$id)
+    alphs <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(mean) %>% dplyr::select(-.data$id)
     if(!is.null(q_boot)){
-      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-        dplyr::summarize_all(mean) %>% dplyr::select(-id) %>% dplyr::pull(q)
+      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+        dplyr::summarize_all(mean) %>% dplyr::select(-.data$id) %>% dplyr::pull(.data$q)
     }else{
       q <- NULL
     }
     C_est <- mean(C_boot)
-    harmonic <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(harmonic = mean(harmonic)) %>% dplyr::pull(harmonic)
+    harmonic <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(harmonic = mean(.data$harmonic)) %>% dplyr::pull(.data$harmonic)
     
-    explog <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(explog = mean(explog)) %>% dplyr::pull(explog)
+    explog <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(explog = mean(.data$explog)) %>% dplyr::pull(.data$explog)
   }
   
   
@@ -400,49 +402,49 @@ predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','cou
     qs <- c((1-conf_level)/2,1-(1-conf_level)/2)
     
     if(type == 'harmonic'){
-      ci <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(harmonic,qs[1]),
-                         ci_ub = quantile(harmonic,qs[2])) %>%
-        dplyr::select(-id)
+      ci <- harmonic_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$harmonic,qs[1]),
+                         ci_ub = quantile(.data$harmonic,qs[2])) %>%
+        dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(harmonic=harmonic),ci))
     }
     if(type == 'explog'){
-      ci <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(explog,qs[1]),
-                         ci_ub = quantile(explog,qs[2])) %>% dplyr::select(-id)
+      ci <- explog_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$explog,qs[1]),
+                         ci_ub = quantile(.data$explog,qs[2])) %>% dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(explog=explog),ci))
     }
     if(type == 'counts'){
-      ci <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(count,qs[1]),
-                         ci_ub = quantile(count,qs[2])) %>% dplyr::select(-id)
+      ci <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$count,qs[1]),
+                         ci_ub = quantile(.data$count,qs[2])) %>% dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(count=cnts$count),ci))
       
     }
     if(type == 'pareto_alpha'){
-      ci <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(pareto_alpha,qs[1]),
-                         ci_ub = quantile(pareto_alpha,qs[2])) %>% dplyr::select(-id)
+      ci <- alphs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$pareto_alpha,qs[1]),
+                         ci_ub = quantile(.data$pareto_alpha,qs[2])) %>% dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(pareto_alpha=alphs$pareto_alpha),ci))
     }
     
     if(type == 'evinf'){
-      ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(pr_pareto,qs[1]),
-                         ci_ub = quantile(pr_pareto,qs[2])) %>% dplyr::select(-id)
+      ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$pr_pareto,qs[1]),
+                         ci_ub = quantile(.data$pr_pareto,qs[2])) %>% dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(pr_pareto=prbs$pr_pareto),ci))
     }
     if(type == 'count_state'){
-      ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(pr_count,qs[1]),
-                         ci_ub = quantile(pr_count,qs[2])) %>% dplyr::select(-id)
+      ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$pr_count,qs[1]),
+                         ci_ub = quantile(.data$pr_count,qs[2])) %>% dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(pr_count=prbs$pr_count),ci))
     }
     if(type == 'quantile'){
       warning('Confidence interval prediction with Quantiles may yield unstable results')
-      ci <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(q,qs[1]),
-                         ci_ub = quantile(q,qs[2])) %>% dplyr::select(-id)
+      ci <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$q,qs[1]),
+                         ci_ub = quantile(.data$q,qs[2])) %>% dplyr::select(-.data$id)
       q_name <- paste0('q',100*quantile)
       return(dplyr::bind_cols(tibble::tibble(!!q_name:=q),ci))
     }

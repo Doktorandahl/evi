@@ -28,6 +28,8 @@ compare_models <- function(object, nb_comparison=T, zinb_comparison=T, winsorize
   dv_f <- all.vars(object$formulas$formula_nb)[1]
   iv_nb <- all.vars(object$formulas$formula_nb)[-1]
   iv_zi <- all.vars(object$formulas$formula_zi)[-1]
+  
+  i <- 'temp_iter'
 
   f_zinb <- as.formula(paste(dv_f,'~',paste(iv_nb,collapse = '+'),'|',paste(iv_zi,collapse = '+')))
   if(nb_comparison){
@@ -378,6 +380,7 @@ predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts',
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
   type <- match.arg(type,c('predicted','counts','zi','evinf','count_state','states','all', 'quantile'))
+  i <- 'temp_iter'
   
   if(type %in% c('states','all') & confint){
     stop('Confidence interval prediction only available for vector outputs')
@@ -436,34 +439,34 @@ predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts',
     predicted <- predict(object$bootstraps[[i]],type = 'r', newdata=newdata)
     
   }else if(pred=='bootstrap_median'){
-    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(median) %>% dplyr::select(-id)
-    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(median) %>% dplyr::select(-id)
+    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(median) %>% dplyr::select(-.data$id)
+    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(median) %>% dplyr::select(-.data$id)
     
     if(!is.null(q_boot)){
-      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-        dplyr::summarize_all(median) %>% dplyr::select(-id) %>% dplyr::pull(q)
+      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+        dplyr::summarize_all(median) %>% dplyr::select(-.data$id) %>% dplyr::pull(.data$q)
     }else{
       q <- NULL
     }
     
-    predicted <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(predicted = median(pred)) %>% dplyr::pull(predicted)
+    predicted <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(predicted = median(.data$pred)) %>% dplyr::pull(.data$predicted)
     
   }else if(pred=='bootstrap_mean'){
     warning('Bootstrapped mean predictions are experimental and may yield infinite values')
-    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(mean) %>% dplyr::select(-id)
-    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-      dplyr::summarize_all(mean) %>% dplyr::select(-id)
+    prbs <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(mean) %>% dplyr::select(-.data$id)
+    cnts <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+      dplyr::summarize_all(mean) %>% dplyr::select(-.data$id)
   
     if(!is.null(q_boot)){
-      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-        dplyr::summarize_all(mean) %>% dplyr::select(-id) %>% dplyr::pull(q)
+      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+        dplyr::summarize_all(mean) %>% dplyr::select(-.data$id) %>% dplyr::pull(.data$q)
     }else{
       q <- NULL
     }
-    predicted <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(predicted = mean(pred)) %>% dplyr::pull(predicted)
+    predicted <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(predicted = mean(.data$pred)) %>% dplyr::pull(.data$predicted)
   
   }
   
@@ -475,38 +478,38 @@ predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts',
     qs <- c((1-conf_level)/2,1-(1-conf_level)/2)
     
     if(type == 'predicted'){
-      ci <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(pred,qs[1]),
-                         ci_ub = quantile(pred,qs[2])) %>%
-        dplyr::select(-id)
+      ci <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$pred,qs[1]),
+                         ci_ub = quantile(.data$pred,qs[2])) %>%
+        dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(predicted=predicted),ci))
     }
    
     if(type == 'counts'){
-      ci <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(count,qs[1]),
-                         ci_ub = quantile(count,qs[2])) %>% dplyr::select(-id)
+      ci <- cnts_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$count,qs[1]),
+                         ci_ub = quantile(.data$count,qs[2])) %>% dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(count=cnts$count),ci))
       
     }
     if(type == 'zi'){
-      ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(pr_zc,qs[1]),
-                         ci_ub = quantile(pr_zc,qs[2])) %>% dplyr::select(-id)
+      ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$pr_zc,qs[1]),
+                         ci_ub = quantile(.data$pr_zc,qs[2])) %>% dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(pr_zc=prbs$pr_zc),ci))
     }
   
     if(type == 'count_state'){
-      ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(pr_count,qs[1]),
-                         ci_ub = quantile(pr_count,qs[2])) %>% dplyr::select(-id)
+      ci <- prbs_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$pr_count,qs[1]),
+                         ci_ub = quantile(.data$pr_count,qs[2])) %>% dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(pr_count=prbs$pr_count),ci))
     }
     if(type == 'quantile'){
       warning('Confidence interval prediction with Quantiles may yield unstable results')
-      ci <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(q,qs[1]),
-                         ci_ub = quantile(q,qs[2])) %>% dplyr::select(-id)
+      ci <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$q,qs[1]),
+                         ci_ub = quantile(.data$q,qs[2])) %>% dplyr::select(-.data$id)
       q_name <- paste0('q',100*quantile)
       return(dplyr::bind_cols(tibble::tibble(!!q_name:=q),ci))
     }
@@ -534,7 +537,7 @@ predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts',
       q_name <- paste0('q',100*quantile)
       return(dplyr::bind_cols(tibble::tibble(predicted = predicted,
                                              !!q_name := q,
-                                             prbs,cnts,alphs)))
+                                             prbs,cnts)))
     }
   }
   
@@ -545,6 +548,7 @@ predict.nbboot <- function(object,newdata=NULL, type = c('predicted','all', 'qua
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
   type <- match.arg(type,c('predicted','all', 'quantile'))
+  i <- 'temp_iter'
   
   if(type %in% c('states','all') & confint){
     stop('Confidence interval prediction only available for vector outputs')
@@ -596,24 +600,24 @@ predict.nbboot <- function(object,newdata=NULL, type = c('predicted','all', 'qua
   }else if(pred=='bootstrap_median'){
  
     if(!is.null(q_boot)){
-      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-        dplyr::summarize_all(median) %>% dplyr::select(-id) %>% dplyr::pull(q)
+      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+        dplyr::summarize_all(median) %>% dplyr::select(-.data$id) %>% dplyr::pull(.data$q)
     }else{
       q <- NULL
     }
     
-    predicted <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(predicted = median(pred)) %>% dplyr::pull(predicted)
+    predicted <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(predicted = median(.data$pred)) %>% dplyr::pull(.data$predicted)
     
   }else if(pred=='bootstrap_mean'){
     warning('Bootstrapped mean predictions are experimental and may yield infinite values')
   
     if(!is.null(q_boot)){
-      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>%
-        dplyr::summarize_all(mean) %>% dplyr::select(-id) %>% dplyr::pull(q)
+      q <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>%
+        dplyr::summarize_all(mean) %>% dplyr::select(-.data$id) %>% dplyr::pull(.data$q)
     }else{
       q <- NULL
     }
-    predicted <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% dplyr::summarize(predicted = mean(pred)) %>% dplyr::pull(predicted)
+    predicted <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% dplyr::summarize(predicted = mean(.data$pred)) %>% dplyr::pull(.data$predicted)
     
   }
   
@@ -625,17 +629,17 @@ predict.nbboot <- function(object,newdata=NULL, type = c('predicted','all', 'qua
     qs <- c((1-conf_level)/2,1-(1-conf_level)/2)
     
     if(type == 'predicted'){
-      ci <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(pred,qs[1]),
-                         ci_ub = quantile(pred,qs[2])) %>%
-        dplyr::select(-id)
+      ci <- prediction_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$pred,qs[1]),
+                         ci_ub = quantile(.data$pred,qs[2])) %>%
+        dplyr::select(-.data$id)
       return(dplyr::bind_cols(tibble::tibble(predicted=predicted),ci))
     }
     if(type == 'quantile'){
       warning('Confidence interval prediction with Quantiles may yield unstable results')
-      ci <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(id) %>% 
-        dplyr::summarize(ci_lb = quantile(q,qs[1]),
-                         ci_ub = quantile(q,qs[2])) %>% dplyr::select(-id)
+      ci <- q_boot %>% dplyr::bind_rows() %>% dplyr::group_by(.data$id) %>% 
+        dplyr::summarize(ci_lb = quantile(.data$q,qs[1]),
+                         ci_ub = quantile(.data$q,qs[2])) %>% dplyr::select(-.data$id)
       q_name <- paste0('q',100*quantile)
       return(dplyr::bind_cols(tibble::tibble(!!q_name:=q),ci))
     }

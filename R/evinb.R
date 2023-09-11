@@ -340,6 +340,8 @@ evinb <- function(formula_nb,
                             init.C = 200,
                   verbose = FALSE){
   
+  i <- 'temp_iter'
+  
   if(is.null(formula_evi)){
     formula_evi <- formula_nb
   }

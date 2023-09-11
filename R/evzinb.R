@@ -275,6 +275,8 @@ evzinb <- function(formula_nb,
                        init.Alpha.NB = 0.01,
                        init.C = 200,
                        verbose = FALSE){
+  i <- 'temp_iter'
+  
   if(is.null(formula_evi)){
     formula_evi <- formula_nb
   }

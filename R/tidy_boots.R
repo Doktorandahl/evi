@@ -53,41 +53,41 @@ tidy.zinbboot <- function(x, component = c('zi','count','all'),coef_type = c('or
     zi <- dplyr::tibble(term = names(x$full_run$coefficients$zero),estimate = x$full_run$coefficients$zero)
     
   }else if(coef_type == 'bootstrap_mean'){
-    nb <- dplyr::tibble(term = names(x$full_run$coefficients$count)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
-                                                                                            dplyr::summarize(estimate = mean(value)),by='term')
-    zi <- dplyr::tibble(term = names(x$full_run$coefficients$zero)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(term) %>%
-                                                                                           dplyr::summarize(estimate = mean(value)),by='term')
+    nb <- dplyr::tibble(term = names(x$full_run$coefficients$count)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(.data$term) %>%
+                                                                                            dplyr::summarize(estimate = mean(.data$value)),by='term')
+    zi <- dplyr::tibble(term = names(x$full_run$coefficients$zero)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(.data$term) %>%
+                                                                                           dplyr::summarize(estimate = mean(.data$value)),by='term')
     
   }else if(coef_type == 'bootstrap_median'){
-    nb <- dplyr::tibble(term = names(x$full_run$coefficients$count)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
-                                                                                            dplyr::summarize(estimate = median(value)),by='term')
-    zi <- dplyr::tibble(term = names(x$full_run$coefficients$zero)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(term) %>%
-                                                                                           dplyr::summarize(estimate = median(value)),by='term')
+    nb <- dplyr::tibble(term = names(x$full_run$coefficients$count)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(.data$term) %>%
+                                                                                            dplyr::summarize(estimate = median(.data$value)),by='term')
+    zi <- dplyr::tibble(term = names(x$full_run$coefficients$zero)) %>% dplyr::left_join(zi_boot %>% dplyr::group_by(.data$term) %>%
+                                                                                           dplyr::summarize(estimate = median(.data$value)),by='term')
     
   }
   if(standard_error){
-    nb <- nb %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
-                                    dplyr::summarize(std.error = sd(value)))
-    zi <- zi %>% dplyr::left_join(zi_boot %>% dplyr::group_by(term) %>%
-                                    dplyr::summarize(std.error = sd(value)))
+    nb <- nb %>% dplyr::left_join(nb_boot %>% dplyr::group_by(.data$term) %>%
+                                    dplyr::summarize(std.error = sd(.data$value)))
+    zi <- zi %>% dplyr::left_join(zi_boot %>% dplyr::group_by(.data$term) %>%
+                                    dplyr::summarize(std.error = sd(.data$value)))
     
   }
   
   if(approx_t_value){
-    nb <- nb %>% dplyr::mutate(statistic = estimate/std.error)
-    zi <- zi %>% dplyr::mutate(statistic = estimate/std.error)
+    nb <- nb %>% dplyr::mutate(statistic = .data$estimate/.data$std.error)
+    zi <- zi %>% dplyr::mutate(statistic = .data$estimate/.data$std.error)
     
   }
   
   if(p_value == 'bootstrapped'){
-    nb <- nb %>% dplyr::left_join(dplyr::left_join(nb_boot,nb) %>% dplyr::group_by(term) %>%
-                                    dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
-    zi <- zi %>% dplyr::left_join(dplyr::left_join(zi_boot,zi) %>% dplyr::group_by(term) %>%
-                                    dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
+    nb <- nb %>% dplyr::left_join(dplyr::left_join(nb_boot,nb) %>% dplyr::group_by(.data$term) %>%
+                                    dplyr::summarize(p.value = bootstrap_p_value_calculator(.data$value,.data$estimate[1],symmetric=symmetric_bootstrap_p)))
+    zi <- zi %>% dplyr::left_join(dplyr::left_join(zi_boot,zi) %>% dplyr::group_by(.data$term) %>%
+                                    dplyr::summarize(p.value = bootstrap_p_value_calculator(.data$value,.data$estimate[1],symmetric=symmetric_bootstrap_p)))
     
   }else if(p_value == 'approx'){
-    nb <- nb %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
-    zi <- zi %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    nb <- nb %>% dplyr::mutate(p.value = 2*(1-pt(abs(.data$statistic),df = nobs-npar)))
+    zi <- zi %>% dplyr::mutate(p.value = 2*(1-pt(abs(.data$statistic),df = nobs-npar)))
     
   }
   
@@ -99,10 +99,8 @@ tidy.zinbboot <- function(x, component = c('zi','count','all'),coef_type = c('or
     return(dplyr::bind_rows(dplyr::mutate(zi,y.level='zi',.before=1),
                             dplyr::mutate(nb,y.level='count',.before=1)))
   }
-  
-  return(res)
-  
-  
+
+
 }
 
 #' Tidy function for nbboot
@@ -155,34 +153,34 @@ tidy.nbboot <- function(x, coef_type = c('original','bootstrap_mean','bootstrap_
     
     
   }else if(coef_type == 'bootstrap_mean'){
-    nb <- dplyr::tibble(term = names(x$full_run$coefficients)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
-                                                                                      dplyr::summarize(estimate = mean(value)),by='term')
+    nb <- dplyr::tibble(term = names(x$full_run$coefficients)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(.data$term) %>%
+                                                                                      dplyr::summarize(estimate = mean(.data$value)),by='term')
     
   }else if(coef_type == 'bootstrap_median'){
-    nb <- dplyr::tibble(term = names(x$full_run$coefficients)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
-                                                                                      dplyr::summarize(estimate = median(value)),by='term')
+    nb <- dplyr::tibble(term = names(x$full_run$coefficients)) %>% dplyr::left_join(nb_boot %>% dplyr::group_by(.data$term) %>%
+                                                                                      dplyr::summarize(estimate = median(.data$value)),by='term')
     
   }
   if(standard_error){
-    nb <- nb %>% dplyr::left_join(nb_boot %>% dplyr::group_by(term) %>%
-                                    dplyr::summarize(std.error = sd(value)))
+    nb <- nb %>% dplyr::left_join(nb_boot %>% dplyr::group_by(.data$term) %>%
+                                    dplyr::summarize(std.error = sd(.data$value)))
     
     
   }
   
   if(approx_t_value){
-    nb <- nb %>% dplyr::mutate(statistic = estimate/std.error)
+    nb <- nb %>% dplyr::mutate(statistic = .data$estimate/.data$std.error)
     
     
   }
   
   if(p_value == 'bootstrapped'){
-    nb <- nb %>% dplyr::left_join(dplyr::left_join(nb_boot,nb) %>% dplyr::group_by(term) %>%
-                                    dplyr::summarize(p.value = bootstrap_p_value_calculator(value,estimate[1],symmetric=symmetric_bootstrap_p)))
+    nb <- nb %>% dplyr::left_join(dplyr::left_join(nb_boot,nb) %>% dplyr::group_by(.data$term) %>%
+                                    dplyr::summarize(p.value = bootstrap_p_value_calculator(.data$value,.data$estimate[1],symmetric=symmetric_bootstrap_p)))
     
     
   }else if(p_value == 'approx'){
-    nb <- nb %>% dplyr::mutate(p.value = 2*(1-pt(abs(approx_t),df = nobs-npar)))
+    nb <- nb %>% dplyr::mutate(p.value = 2*(1-pt(abs(.data$statistic),df = nobs-npar)))
     
     
   }

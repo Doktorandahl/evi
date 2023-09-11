@@ -16,6 +16,7 @@
 #' }
 oob_evaluation <- function(object,predict_type = c('harmonic','explog'),
                            metric = c('rmsle','rmse','mse','mae')){
+  i <- 'temp_iter'
   
   if(is.character(metric)){
     metric <- match.arg(metric, c('rmsle','rmse','mse','mae'))

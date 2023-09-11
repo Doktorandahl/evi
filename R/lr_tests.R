@@ -14,10 +14,12 @@
 #' @examples 
 #' \dontrun{
 #' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
 #'  lr_test_evzinb(model,'x1')
 #'  }
 lr_test_evzinb <- function(object, vars, single = TRUE, bootstrap = FALSE){
+  i <- 'temp_iter'
+  
   if(!is(vars, 'list')){
     if(single){
       formulas_dfs <- foreach::foreach(i = 1:length(vars)) %do%
@@ -48,14 +50,15 @@ lr_test_evzinb <- function(object, vars, single = TRUE, bootstrap = FALSE){
                           loglik_full = object$log.lik,
                           loglik_restricted = logliks,
                           df = dfs) %>%
-      dplyr::mutate(statistic = loglik_full - loglik_restricted,
-             prob = 1-pchisq(statistic,df))
+      dplyr::mutate(statistic = .data$loglik_full - .data$loglik_restricted,
+             prob = 1-pchisq(.data$statistic,.data$df))
     return(out)
   }
 
   
 formula_var_remover <- function(formulas,vars){
-    
+  i <- 'temp_iter'
+  
   terms_nb <- attr(terms.formula(formulas$formula_nb),'term.labels')
   if(!is.null(formulas$formula_zi)){
   terms_zi <- attr(terms.formula(formulas$formula_zi),'term.labels')
