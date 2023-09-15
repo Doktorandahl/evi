@@ -99,8 +99,7 @@ An object of class 'evinb'
 Running an extreme value inflated negative binomial model with bootstrapping
 }
 \examples{
-\dontrun{
-data(genevzinb)
-model <- evinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
-}
+data(genevzinb2)
+model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+
 }

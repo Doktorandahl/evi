@@ -18,7 +18,7 @@ An nbboot glance function
 zinbboot and nboot glance functions
 }
 \examples{
-\dontrun{
+\donttest{
 data(genevzinb)
 model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
 zinb_comp <- compare_models(model)

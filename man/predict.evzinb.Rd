@@ -11,9 +11,9 @@
     "states", "all", "quantile"),
   pred = c("original", "bootstrap_median", "bootstrap_mean"),
   quantile = NULL,
-  confint = F,
+  confint = FALSE,
   conf_level = 0.9,
-  multicore = F,
+  multicore = FALSE,
   ncores = NULL,
   ...
 )
@@ -46,10 +46,9 @@ A vector of predicted values for type 'harmonic', 'explog', 'counts', 'pareto_al
 Predictions from evzinb object
 }
 \examples{
-\dontrun{
-data(genevzinb)
-model <- evzinb(y~x1+x2+x3,data=genevzinb)
+data(genevzinb2)
+model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 predict(model)
 predict(model, type='all') # Getting all of the available predicted values
-}
+
 }

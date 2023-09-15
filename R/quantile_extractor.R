@@ -12,7 +12,7 @@
 #' @noRd
 quantiles_from_evzinb <- function(object, quantile,
                                   newdata = NULL,
-                                  return_data =F,multicore = T,ncores=NULL){
+                                  return_data =FALSE,multicore = TRUE,ncores=NULL){
 
   i <- 'temp_iter'
   
@@ -74,7 +74,7 @@ quantiles_from_evzinb <- function(object, quantile,
 #' @noRd
 quantiles_from_evinb <- function(object, quantile,
                                   newdata = NULL,
-                                  return_data =F,multicore = T,ncores=NULL){
+                                  return_data =FALSE,multicore = TRUE,ncores=NULL){
   
   
   i <- 'temp_iter'
@@ -131,7 +131,7 @@ quantiles_from_evinb <- function(object, quantile,
 #' @return A tibble with the predicted state probabilities. If return_data=T this is appended to the data or newdata
 #'
 #' @noRd
-prob_from_evzinb <- function(object,newdata=NULL, return_data = F){
+prob_from_evzinb <- function(object,newdata=NULL, return_data = FALSE){
 
   if(is.null(newdata)){
     x.multinom.zc <- object$data$x.multinom.zc
@@ -186,7 +186,7 @@ prob_from_evzinb <- function(object,newdata=NULL, return_data = F){
 #' @return A tibble with the predicted state probabilities. If return_data=T this is appended to the data or newdata
 #'
 #' @noRd
-prob_from_evinb <- function(object,newdata=NULL, return_data = F){
+prob_from_evinb <- function(object,newdata=NULL, return_data = FALSE){
   
   if(is.null(newdata)){
     x.multinom.pl <- object$data$x.multinom.pl
@@ -230,7 +230,7 @@ prob_from_evinb <- function(object,newdata=NULL, return_data = F){
 #' @return A tibble with the predicted nb counts. If return_data=T this is appended to the data or newdata
 #'
 #' @noRd
-counts_from_evzinb <- function(object,newdata=NULL, return_data = F){
+counts_from_evzinb <- function(object,newdata=NULL, return_data = FALSE){
 
   if(is.null(newdata)){
     x.nb <- object$data$x.nb
@@ -265,7 +265,7 @@ counts_from_evzinb <- function(object,newdata=NULL, return_data = F){
 #' @return A tibble with the predicted pareto alpha values. If return_data=T this is appended to the data or newdata
 #'
 #' @noRd
-fitted_alpha_from_evzinb <- function(object,newdata=NULL, return_data = F){
+fitted_alpha_from_evzinb <- function(object,newdata=NULL, return_data = FALSE){
   if(is.null(newdata)){
     x.pl <- object$data$x.pl
   }else{

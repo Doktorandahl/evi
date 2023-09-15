@@ -12,11 +12,10 @@
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #'  lr_test_evzinb(model,'x1')
-#'  }
+#'  
 lr_test_evzinb <- function(object, vars, single = TRUE, bootstrap = FALSE){
   i <- 'temp_iter'
   

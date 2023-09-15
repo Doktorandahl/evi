@@ -10,11 +10,10 @@
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #' print(model)
-#' }
+#' 
 print.evzinb <- function(x,...){
   cat('\n','Fitted EVZINB model with formulas:',
       '\n NB:', paste(x$formulas$formula_nb)[2],paste(x$formulas$formula_nb)[1],
@@ -39,11 +38,11 @@ print.evzinb <- function(x,...){
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#'
+#' data(genevzinb2)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #' print(model)
-#' }
+#' 
 print.evinb <- function(x,...){
   cat('\n','Fitted EVZINB model with formulas:',
       '\n NB:', paste(x$formulas$formula_nb)[2],paste(x$formulas$formula_nb)[1],
@@ -66,11 +65,10 @@ print.evinb <- function(x,...){
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' data(genevzinb2)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #' print(model)
-#' }
+#' 
 print.evzinbcomp <- function(x,...){
   comp_class <- class(x[[1]])
   

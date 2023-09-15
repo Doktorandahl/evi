@@ -9,11 +9,10 @@
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #' oob_evaluation(model)
-#' }
+#' 
 oob_evaluation <- function(object,predict_type = c('harmonic','explog'),
                            metric = c('rmsle','rmse','mse','mae')){
   i <- 'temp_iter'

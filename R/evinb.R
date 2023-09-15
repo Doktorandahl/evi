@@ -46,7 +46,7 @@ run_evinb <- function(formula_nb,
                        init.Beta.PL = NULL,
                        init.Alpha.NB = 0.01,
                        init.C = 200,
-                      verbose = F){
+                      verbose = FALSE){
   
   if(is.null(formula_evi)){
     formula_evi <- formula_nb
@@ -94,7 +94,7 @@ if(is.null(init.Beta.multinom.PL) | length(init.Beta.multinom.PL) != ncol(mf_evi
 }
 
 if(is.null(init.Beta.NB) | length(init.Beta.NB) != ncol(mf_evi)){
-  Ini.Val$Beta.NB <- rep(0,ncol(mf_evi))
+  Ini.Val$Beta.NB <- rep(0,ncol(mf_nb))
 }else{
   Ini.Val$Beta.NB <- init.Beta.NB
 }
@@ -198,7 +198,7 @@ return(object)
 #' @return A bootstrapped evinb object
 #' 
 #' @noRd
-bootrun_evinb <- function(object,block = NULL, timing=T, track_progress = F, id=NULL, maxboot=NULL){
+bootrun_evinb <- function(object,block = NULL, timing=TRUE, track_progress = FALSE, id=NULL, maxboot=NULL){
   
   tim <- Sys.time()
   if(is.null(block)){
@@ -307,10 +307,9 @@ if(track_progress){
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
-#' }
+#' data(genevzinb2)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+#' 
 evinb <- function(formula_nb,
                             formula_evi = NULL,
                             formula_pareto = NULL,

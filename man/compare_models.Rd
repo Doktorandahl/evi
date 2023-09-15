@@ -6,13 +6,13 @@
 \usage{
 compare_models(
   object,
-  nb_comparison = T,
-  zinb_comparison = T,
-  winsorize = T,
-  razorize = T,
+  nb_comparison = TRUE,
+  zinb_comparison = TRUE,
+  winsorize = TRUE,
+  razorize = TRUE,
   cutoff_value = 10,
   init_theta = NULL,
-  multicore = F,
+  multicore = FALSE,
   ncores = NULL
 )
 }
@@ -42,9 +42,8 @@ A list with the original model as the first object and compared models as the fo
 Function to compare evzinb or evinb models with zinb and nb models
 }
 \examples{
-\dontrun{
-data(genevzinb)
-model <- evzinb(y~x1+x2+x3,data=genevzinb)
+data(genevzinb2)
+model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 compare_models(model)
-}
+
 }

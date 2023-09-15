@@ -14,11 +14,10 @@
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #' summary(model)
-#' }
+#' 
 summary.evzinb <- function(object,coef = c('original','bootstrapped_mean','bootstrapped_median'),standard_error = TRUE, p_value = c('bootstrapped','approx','both','none'), bootstrapped_props = c('none','mean','median'),approx_t_value = TRUE,
                            symmetric_bootstrap_p = TRUE,...){
 
@@ -172,11 +171,11 @@ bootstrapped_props <- match.arg(bootstrapped_props,c('none','mean','median'))
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' 
+#' data(genevzinb2)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb2)
 #' summary(model)
-#' }
+#' 
 summary.evinb <- function(object,coef = c('original','bootstrapped_mean','bootstrapped_median'),standard_error = TRUE, p_value = c('bootstrapped','approx','both','none'), bootstrapped_props = c('none','mean','median'),approx_t_value = TRUE,
                           symmetric_bootstrap_p = TRUE,...){
   

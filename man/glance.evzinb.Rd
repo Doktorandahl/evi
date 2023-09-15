@@ -18,11 +18,10 @@ An EVZINB glance function
 EVZINB and EVINB glance functions
 }
 \examples{
-\dontrun{
-data(genevzinb)
-model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
+data(genevzinb2)
+model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 glance(model)
-}
+
 }
 \seealso{
 \code{\link[generics]{glance}}

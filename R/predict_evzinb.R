@@ -27,13 +27,12 @@ explog_calc <- function(pr_count,count,pr_pareto,C,pareto_alpha){
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #' predict(model)
 #' predict(model, type='all') # Getting all of the available predicted values
-#' }
-predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
+#' 
+predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=FALSE, conf_level=0.9, multicore = FALSE,ncores=NULL,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
@@ -271,13 +270,12 @@ predict.evzinb <- function(object,newdata=NULL, type = c('harmonic','explog','co
 #' @importFrom rlang :=
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb)
+#' data(genevzinb2)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #' predict(model)
 #' predict(model, type='all') # Getting all of the available predicted values
-#' }
-predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
+#' 
+predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','counts','pareto_alpha','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=FALSE, conf_level=0.9, multicore = FALSE,ncores=NULL,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
@@ -484,4 +482,107 @@ predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','cou
     }
   }
   
+}
+
+
+
+
+
+
+#' Random draws from a fitted evzinb model
+#'
+#' @param object A fitted EVZINB object
+#' @param newdata Optional newdata
+#' @param n_draws Number of random draws to make
+#'
+#' @return A vector of randomly drawn values from the fitted evzinb if n_draws == 1, or a list of length n_draws with random drawn values if n_draws > 1
+#' @export
+#'
+#' @examples
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3, data=genevzinb2, n_bootstraps = 10)
+#' revzinb_fit(model)
+#' 
+revzinb_fit <- function(object,newdata=NULL,n_draws = 1){
+  i <- 'iter_temp'
+  ## Estimate component probabilities for all individuals
+  prbs <- prob_from_evzinb(object,
+                          newdata = newdata)
+  ## Estimate mu_nb for all individuals
+  cnts <- counts_from_evzinb(object,
+                             newdata = newdata) %>% dplyr::pull()
+  ## Estimate pareto alpha for all individuals
+  alphs <- fitted_alpha_from_evzinb(object,
+                                    newdata = newdata) %>% dplyr::pull()
+  
+  alpha_nb <- object$coef$Alpha.NB
+  
+  C_est <- object$coef$C
+  
+  n <- length(object$data$y)
+  
+  out <- foreach::foreach(i = 1:n_draws) %do%{
+    pl_draws <- foreach::foreach(j = 1:n) %do%
+      round(mistr::rpareto(1,C_est,alphs[i]))
+    pl_draws <- purrr::reduce(pl_draws,c)
+    count_draws <- rnbinom(n,mu=cnts,size=1/alpha_nb)
+    state_draw <- runif(n)
+  prbs %>% dplyr::mutate(rdraw = dplyr::case_when(state_draw <= .data$pr_zc ~ 0,
+                                                       state_draw <= .data$pr_zc + .data$pr_count ~ count_draws,
+                                                       T ~ pl_draws)) %>% dplyr::pull(.data$rdraw)
+  }
+ if(n_draws == 1){
+   return(out[[1]])
+ }else{
+   return(out)
+ }
+}
+
+#' Random draws from a fitted evinb model
+#'
+#' @param object A fitted EVINB object
+#' @param newdata Optional newdata
+#' @param n_draws Number of random draws to make
+#'
+#' @return A vector of randomly drawn values from the fitted evinb if n_draws == 1, or a list of length n_draws with random drawn values if n_draws > 1
+#' @export
+#'
+#' @examples
+#' data(genevzinb2)
+#' model <- evinb(y~x1+x2+x3, data=genevzinb2, n_bootstraps = 10)
+#' revinb_fit(model)
+#' 
+revinb_fit <- function(object,newdata=NULL,n_draws = 1){
+  i <- j <- 'iter_temp'
+  ## Estimate component probabilities for all individuals
+  prbs <- prob_from_evinb(object,
+                          newdata = newdata)
+  ## Estimate mu_nb for all individuals
+  cnts <- counts_from_evzinb(object,
+                             newdata = newdata) %>% dplyr::pull()
+  ## Estimate pareto alpha for all individuals
+  alphs <- fitted_alpha_from_evzinb(object,
+                                    newdata = newdata) %>% dplyr::pull()
+  
+  alpha_nb <- object$coef$Alpha.NB
+  
+  C_est <- object$coef$C
+  
+  n <- length(object$data$y)
+  
+ out <- foreach::foreach(i = 1:n_draws) %do%{
+  pl_draws <- foreach::foreach(j = 1:n) %do%
+    round(mistr::rpareto(1,C_est,alphs[i]))
+  pl_draws <- purrr::reduce(pl_draws,c)
+  count_draws <- rnbinom(n,mu=cnts,size=1/alpha_nb)
+  state_draw <- runif(n)
+  prbs %>% dplyr::mutate(rdraw = dplyr::case_when(state_draw <= .data$pr_count ~ count_draws,
+                                                  T ~ pl_draws)) %>% dplyr::pull(.data$rdraw)
+  }
+  
+  if(n_draws == 1){
+    return(out[[1]])
+  }else{
+    return(out)
+  }
 }

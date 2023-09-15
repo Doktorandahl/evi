@@ -45,9 +45,8 @@ An EVINB tidy function
 EVINB tidy function
 }
 \examples{
-\dontrun{
-data(genevzinb)
-model <- evinb(y~x1+x2+x3,data=genevzinb)
+data(genevzinb2)
+model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 tidy(model)
-}
+
 }

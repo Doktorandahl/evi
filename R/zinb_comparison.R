@@ -18,12 +18,11 @@ inv <- function(x){
 #' @export
 #'
 #' @examples 
-#' \dontrun{
-#' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb)
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
 #' compare_models(model)
-#' }
-compare_models <- function(object, nb_comparison=T, zinb_comparison=T, winsorize=T, razorize=T, cutoff_value=10, init_theta=NULL, multicore = F, ncores=NULL){
+#' 
+compare_models <- function(object, nb_comparison = TRUE, zinb_comparison = TRUE, winsorize = TRUE, razorize = TRUE, cutoff_value=10, init_theta=NULL, multicore = FALSE, ncores=NULL){
 
   dv_f <- all.vars(object$formulas$formula_nb)[1]
   iv_nb <- all.vars(object$formulas$formula_nb)[-1]
