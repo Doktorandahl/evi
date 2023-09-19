@@ -10,11 +10,10 @@
 #' @export
 #'
 #' @examples
-#' \donttest{
-#' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' coefficient_extractor(model, component = 'all')
-#' }
+#' 
 coefficient_extractor <- function(object,...){
   UseMethod('coefficient_extractor')
 }
@@ -30,11 +29,10 @@ coefficient_extractor <- function(object,...){
 #' @export
 #'
 #' @examples 
-#' \donttest{
-#' data(genevzinb)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb, n_bootstraps = 10)
+#' data(genevzinb2)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' coefficient_extractor(model, component = 'all')
-#' }
+#' 
 coefficient_extractor.evzinb <- function(object,component = c('nb','zi','evinf','pareto','all'),...){
 
   component <- match.arg(component,c('nb','zi','evinf','pareto','all'))
@@ -80,7 +78,7 @@ if(component == 'nb'){
 #'
 #' @examples 
 #' data(genevzinb2)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' coefficient_extractor(model, component = 'all')
 #' 
 coefficient_extractor.evinb <- function(object,component = c('nb','evinf','pareto','all'),...){
@@ -161,7 +159,7 @@ coefficient_extractor.zinbboot <- function(object,component = c('nb','zi','all')
 #'
 #' @examples 
 #' data(genevzinb2)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' zinb_comp <- compare_models(model)
 #' coefficient_extractor(zinb_comp$nb)
 #' 

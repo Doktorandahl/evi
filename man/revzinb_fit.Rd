@@ -21,7 +21,7 @@ Random draws from a fitted evzinb model
 }
 \examples{
 data(genevzinb2)
-model <- evzinb(y~x1+x2+x3, data=genevzinb2, n_bootstraps = 10)
+model <- evzinb(y~x1+x2+x3, data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 revzinb_fit(model)
 
 }

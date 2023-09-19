@@ -19,7 +19,7 @@ zinbboot and nboot glance functions
 }
 \examples{
 data(genevzinb2)
-model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 zinb_comp <- compare_models(model)
 glance(zinb_comp$nb)
 

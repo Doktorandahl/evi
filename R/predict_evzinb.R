@@ -500,7 +500,7 @@ predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','cou
 #'
 #' @examples
 #' data(genevzinb2)
-#' model <- evzinb(y~x1+x2+x3, data=genevzinb2, n_bootstraps = 10)
+#' model <- evzinb(y~x1+x2+x3, data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' revzinb_fit(model)
 #' 
 revzinb_fit <- function(object,newdata=NULL,n_draws = 1){
@@ -519,11 +519,14 @@ revzinb_fit <- function(object,newdata=NULL,n_draws = 1){
   
   C_est <- object$coef$C
   
-  n <- length(object$data$y)
-  
+  if(is.null(newdata)){
+    n <- length(object$data$y)
+  }else{
+    n <- nrow(newdata)
+  }  
   out <- foreach::foreach(i = 1:n_draws) %do%{
     pl_draws <- foreach::foreach(j = 1:n) %do%
-      round(mistr::rpareto(1,C_est,alphs[i]))
+      round(mistr::rpareto(1,C_est,alphs[j]))
     pl_draws <- purrr::reduce(pl_draws,c)
     count_draws <- rnbinom(n,mu=cnts,size=1/alpha_nb)
     state_draw <- runif(n)
@@ -549,7 +552,7 @@ revzinb_fit <- function(object,newdata=NULL,n_draws = 1){
 #'
 #' @examples
 #' data(genevzinb2)
-#' model <- evinb(y~x1+x2+x3, data=genevzinb2, n_bootstraps = 10)
+#' model <- evinb(y~x1+x2+x3, data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' revinb_fit(model)
 #' 
 revinb_fit <- function(object,newdata=NULL,n_draws = 1){
@@ -567,12 +570,15 @@ revinb_fit <- function(object,newdata=NULL,n_draws = 1){
   alpha_nb <- object$coef$Alpha.NB
   
   C_est <- object$coef$C
-  
+  if(is.null(newdata)){
   n <- length(object$data$y)
+  }else{
+    n <- nrow(newdata)
+  }
   
  out <- foreach::foreach(i = 1:n_draws) %do%{
   pl_draws <- foreach::foreach(j = 1:n) %do%
-    round(mistr::rpareto(1,C_est,alphs[i]))
+    round(mistr::rpareto(1,C_est,alphs[j]))
   pl_draws <- purrr::reduce(pl_draws,c)
   count_draws <- rnbinom(n,mu=cnts,size=1/alpha_nb)
   state_draw <- runif(n)

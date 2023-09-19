@@ -17,7 +17,7 @@
 #' @examples 
 #'
 #' data(genevzinb2)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' tidy(model)
 #' 
 tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef_type = c('original','bootstrap_mean','bootstrap_median'), standard_error=TRUE, p_value = c('bootstrapped','approx','none'), confint = c('none','bootstrapped','approx'),conf_level = 0.95,approx_t_value = TRUE,symmetric_bootstrap_p = TRUE,...){
@@ -145,7 +145,7 @@ tidy.evzinb <- function(x,component = c('zi','evi','count','pareto','all'), coef
 #'
 #' @examples 
 #' data(genevzinb2)
-#' model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+#' model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' tidy(model)
 #' 
 tidy.evinb <- function(x,component = c('evi','count','pareto','all'), coef_type = c('original','bootstrap_mean','bootstrap_median'), standard_error=TRUE, p_value = c('bootstrapped','approx','none'), confint = c('none','bootstrapped','approx'),conf_level = 0.95,approx_t_value = TRUE,symmetric_bootstrap_p = TRUE,...){

@@ -19,7 +19,7 @@ inv <- function(x){
 #'
 #' @examples 
 #' data(genevzinb2)
-#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+#' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' compare_models(model)
 #' 
 compare_models <- function(object, nb_comparison = TRUE, zinb_comparison = TRUE, winsorize = TRUE, razorize = TRUE, cutoff_value=10, init_theta=NULL, multicore = FALSE, ncores=NULL){

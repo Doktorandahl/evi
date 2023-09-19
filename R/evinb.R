@@ -375,8 +375,17 @@ evinb <- function(formula_nb,
   full_run$block <- block
   if(!is.null(block)){
     if(is.character(block)){
-      block2 <- data %>% dplyr::select(dplyr::all_of(block)) %>% dplyr::pull()
-      full_run$data$data <- dplyr::bind_cols(data %>% dplyr::select(dplyr::all_of(block)),full_run$data$data)
+      block2 <- data %>% dplyr::select(dplyr::all_of(unique(c(all.vars(formula_nb),
+                                                              all.vars(formula_zi),
+                                                              all.vars(formula_evi),
+                                                              all.vars(formula_pareto),block)))) %>% na.omit() %>%
+        dplyr::select(dplyr::all_of(block)) %>% dplyr::pull()
+      
+      full_run$data$data <- dplyr::bind_cols(data %>% dplyr::select(dplyr::all_of(unique(c(all.vars(formula_nb),
+                                                                                           all.vars(formula_zi),
+                                                                                           all.vars(formula_evi),
+                                                                                           all.vars(formula_pareto),block)))) %>% na.omit() %>%
+                                               dplyr::select(dplyr::all_of(block)),full_run$data$data)
     }
   }else{
     block2 <- NULL
@@ -387,7 +396,12 @@ evinb <- function(formula_nb,
       if(is.null(ncores)){
         ncores <- parallel::detectCores()-1
       }
-      doParallel::registerDoParallel(cores = ncores)
+      if(.Platform$OS.type == 'windows'){
+        cl <- parallel::makeCluster(ncores)
+        doParallel::registerDoParallel(cl)
+      }else{
+        doParallel::registerDoParallel(cores = ncores)
+      }
       ex_time <- runtime*n_bootstraps/ncores
     }else{
       ex_time <- runtime*n_bootstraps
@@ -406,7 +420,11 @@ evinb <- function(formula_nb,
            list(bootstraps = boots))
 
   if(multicore){
+    if(.Platform$OS.type == 'windows'){
+      parallel::stopCluster(cl)
+    }else{
   doParallel::stopImplicitCluster()
+    }
   }
   names(boots) <- paste('bootstrap_',1:length(boots),sep="")
   }else{

@@ -25,7 +25,7 @@ Bootstrap coefficient extractor
 }
 \examples{
 data(genevzinb2)
-model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10)
+model <- evinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 coefficient_extractor(model, component = 'all')
 
 }
