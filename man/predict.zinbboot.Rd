@@ -13,8 +13,6 @@
   quantile = NULL,
   confint = F,
   conf_level = 0.9,
-  multicore = F,
-  ncores = NULL,
   ...
 )
 }
@@ -32,10 +30,6 @@
 \item{confint}{Should confidence intervals be created?}
 
 \item{conf_level}{Confidence level when predicting with CIs}
-
-\item{multicore}{Logical: should multiple cores be used?}
-
-\item{ncores}{Number of cores to use}
 
 \item{...}{Not used}
 }

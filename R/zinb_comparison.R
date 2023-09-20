@@ -22,7 +22,7 @@ inv <- function(x){
 #' model <- evzinb(y~x1+x2+x3,data=genevzinb2, n_bootstraps = 10, multicore = TRUE, ncores = 2)
 #' compare_models(model)
 #' 
-compare_models <- function(object, nb_comparison = TRUE, zinb_comparison = TRUE, winsorize = TRUE, razorize = TRUE, cutoff_value=10, init_theta=NULL, multicore = FALSE, ncores=NULL){
+compare_models <- function(object, nb_comparison = TRUE, zinb_comparison = TRUE, winsorize = FALSE, razorize = FALSE, cutoff_value=10, init_theta=NULL, multicore = FALSE, ncores=NULL){
 
   dv_f <- all.vars(object$formulas$formula_nb)[1]
   iv_nb <- all.vars(object$formulas$formula_nb)[-1]
@@ -76,42 +76,77 @@ compare_models <- function(object, nb_comparison = TRUE, zinb_comparison = TRUE,
     if(is.null(ncores)){
       ncores <- parallel::detectCores()-1
     }
-    doParallel::registerDoParallel(cores = ncores)
+    if(.Platform$OS.type == 'windows'){
+      cl <- parallel::makeCluster(ncores)
+      doParallel::registerDoParallel(cl)
+    }else{
+      doParallel::registerDoParallel(cores = ncores)
+    }
   }else{
     doParallel::stopImplicitCluster()
   }
 if(nb_comparison){
   if(!is.null(init_theta)){
-  bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+    if(.Platform$OS.type == 'windows'){
+  bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
     inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas,init_theta=init_theta)
+    }else{
+      bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+        inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas,init_theta=init_theta)
+    }
   }else{
-    bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+    if(.Platform$OS.type == 'windows'){
+    bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
       inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas)
+    }else{
+      bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+        inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas)
+    }
   }
   names(bootstraps_nb) <- names(object$bootstraps)
   bootstraps_nb <- bootstraps_nb %>% purrr::map(mr_inner)
 }
   if(zinb_comparison){
-  bootstraps_zinb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+    if(.Platform$OS.type == 'windows'){
+  bootstraps_zinb <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
     inner_zinb(object$bootstraps[[i]],data = object$data$data,formulas = object$formulas)
+    }else{
+      bootstraps_zinb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+        inner_zinb(object$bootstraps[[i]],data = object$data$data,formulas = object$formulas)
+    }
   names(bootstraps_zinb) <- names(object$bootstraps)
   bootstraps_zinb <- bootstraps_zinb %>% purrr::map(mr_inner)
   }
   if(winsorize){
   if(nb_comparison){
     if(!is.null(init_theta)){
-    bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+      if(.Platform$OS.type == 'windows'){
+    bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.package ="evinf") %dopar%
     inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas,init_theta=init_theta)
+      }else{
+        bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+          inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas,init_theta=init_theta)
+      }
     }else{
-      bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+      if(.Platform$OS.type == 'windows'){
+      bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
         inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas)
+      }else{
+        bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+          inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas)
+      }
     }
   names(bootstraps_nb_winsor) <- names(object$bootstraps)
   bootstraps_nb_winsor<-bootstraps_nb_winsor %>% purrr::map(mr_inner)
   }
     if(zinb_comparison){
-  bootstraps_zinb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+      if(.Platform$OS.type == 'windows'){
+  bootstraps_zinb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
     inner_zinb(object$bootstraps[[i]],data = data_winsor,formulas = object$formulas)
+      }else{
+        bootstraps_zinb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+          inner_zinb(object$bootstraps[[i]],data = data_winsor,formulas = object$formulas)
+      }
   names(bootstraps_zinb_winsor) <- names(object$bootstraps)
   bootstraps_zinb_winsor <- bootstraps_zinb_winsor %>% purrr::map(mr_inner)
     }
@@ -119,25 +154,44 @@ if(nb_comparison){
 if(razorize){
   if(nb_comparison){
     if(!is.null(init_theta)){
-  bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+      if(.Platform$OS.type == 'windows'){
+  bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
     inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas,init_theta=init_theta)
+      }else{
+        bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+          inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas,init_theta=init_theta)
+      }
     }else{
-      bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+      if(.Platform$OS.type == 'windows'){
+      bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
         inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas)
+      }else{
+        bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+          inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas)
+      }
     }
   names(bootstraps_nb_razor) <- names(object$bootstraps)
   bootstraps_nb_razor<- bootstraps_nb_razor %>% purrr::map(mr_inner)
   }
   if(zinb_comparison){
-  bootstraps_zinb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+    if(.Platform$OS.type == 'windows'){
+  bootstraps_zinb_razor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
     inner_zinb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas)
+    }else{
+      bootstraps_zinb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
+        inner_zinb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas)
+    }
   names(bootstraps_zinb_razor) <- names(object$bootstraps)
 
   bootstraps_zinb_razor<- bootstraps_zinb_razor %>% purrr::map(mr_inner)
   }
 }
   if(multicore){
+    if(.Platform$OS.type == 'windows'){
+    parallel::stopCluster(cl)
+      }else{
     doParallel::stopImplicitCluster()
+    }
   }
 if(nb_comparison){
   nb <- list(full_run = full_nb,
@@ -367,14 +421,12 @@ quantiles_from_nb <- function(quantile,nb,
 #' @param quantile Quantile for quantile prediction
 #' @param confint Should confidence intervals be created?
 #' @param conf_level Confidence level when predicting with CIs
-#' @param multicore Logical: should multiple cores be used?
-#' @param ncores Number of cores to use
 #' @param ... Not used
 #' 
 #' @importFrom rlang :=
 #'
 #' @return Predictions from zinbboot
-predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
+predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
@@ -542,7 +594,7 @@ predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts',
   
 }
 
-predict.nbboot <- function(object,newdata=NULL, type = c('predicted','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9, multicore = F,ncores=NULL,...){
+predict.nbboot <- function(object,newdata=NULL, type = c('predicted','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   

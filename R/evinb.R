@@ -376,13 +376,13 @@ evinb <- function(formula_nb,
   if(!is.null(block)){
     if(is.character(block)){
       block2 <- data %>% dplyr::select(dplyr::all_of(unique(c(all.vars(formula_nb),
-                                                              all.vars(formula_zi),
+                                                              #all.vars(formula_zi),
                                                               all.vars(formula_evi),
                                                               all.vars(formula_pareto),block)))) %>% na.omit() %>%
         dplyr::select(dplyr::all_of(block)) %>% dplyr::pull()
       
       full_run$data$data <- dplyr::bind_cols(data %>% dplyr::select(dplyr::all_of(unique(c(all.vars(formula_nb),
-                                                                                           all.vars(formula_zi),
+                                                                                           #all.vars(formula_zi),
                                                                                            all.vars(formula_evi),
                                                                                            all.vars(formula_pareto),block)))) %>% na.omit() %>%
                                                dplyr::select(dplyr::all_of(block)),full_run$data$data)
@@ -409,11 +409,21 @@ evinb <- function(formula_nb,
     cat("\n ======", "Approximate runtime for bootstraps is", ex_time, attributes(runtime)$units, ". Note: This is a very rough estimate of the runtime.")
     
     if(verbose){
-      boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
+      if(.Platform$OS.type == 'windows'){
+      boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed,.package = 'evinf') %dorng%
         try(bootrun_evinb(full_run,block2,track_progress = T, id = i, maxboot = n_bootstraps))
+      }else{
+        boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
+          try(bootrun_evinb(full_run,block2,track_progress = T, id = i, maxboot = n_bootstraps))
+      }
     }else{
-      boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
+      if(.Platform$OS.type == 'windows'){
+      boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed,.package = 'evinf') %dorng%
         try(bootrun_evinb(full_run,block2,track_progress = F, id = i, maxboot = n_bootstraps))
+      }else{
+        boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
+          try(bootrun_evinb(full_run,block2,track_progress = F, id = i, maxboot = n_bootstraps))
+      }
     }
   
   out <- c(full_run,

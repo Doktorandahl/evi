@@ -504,7 +504,7 @@ predict.evinb <- function(object,newdata=NULL, type = c('harmonic','explog','cou
 #' revzinb_fit(model)
 #' 
 revzinb_fit <- function(object,newdata=NULL,n_draws = 1){
-  i <- 'iter_temp'
+  i <- j <- 'iter_temp'
   ## Estimate component probabilities for all individuals
   prbs <- prob_from_evzinb(object,
                           newdata = newdata)
