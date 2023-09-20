@@ -409,21 +409,13 @@ evinb <- function(formula_nb,
     cat("\n ======", "Approximate runtime for bootstraps is", ex_time, attributes(runtime)$units, ". Note: This is a very rough estimate of the runtime.")
     
     if(verbose){
-      if(.Platform$OS.type == 'windows'){
-      boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed,.package = 'evinf') %dorng%
-        try(bootrun_evinb(full_run,block2,track_progress = T, id = i, maxboot = n_bootstraps))
-      }else{
-        boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
+        boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed,.packages = 'evinf') %dorng%
           try(bootrun_evinb(full_run,block2,track_progress = T, id = i, maxboot = n_bootstraps))
-      }
+      
     }else{
-      if(.Platform$OS.type == 'windows'){
-      boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed,.package = 'evinf') %dorng%
-        try(bootrun_evinb(full_run,block2,track_progress = F, id = i, maxboot = n_bootstraps))
-      }else{
-        boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
+        boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed,.packages = 'evinf') %dorng%
           try(bootrun_evinb(full_run,block2,track_progress = F, id = i, maxboot = n_bootstraps))
-      }
+      
     }
   
   out <- c(full_run,
@@ -432,6 +424,7 @@ evinb <- function(formula_nb,
   if(multicore){
     if(.Platform$OS.type == 'windows'){
       parallel::stopCluster(cl)
+      foreach::registerDoSEQ()
     }else{
   doParallel::stopImplicitCluster()
     }

@@ -352,25 +352,17 @@ if(bootstrap){
   cat("\n ======", "Approximate runtime for bootstraps is", ex_time, attributes(runtime)$units, ". Note: This is a very rough estimate of the runtime.")
   
   if(verbose){
-    if(.Platform$OS.type == 'windows'){
   boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed,.packages = 'evinf') %dorng%
     try(bootrun_evzinb(full_run,block2,track_progress = T, id = i, maxboot = n_bootstraps))
-    }else{
-      boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
-        try(bootrun_evzinb(full_run,block2,track_progress = T, id = i, maxboot = n_bootstraps))
-    }
   }else{
-    if(.Platform$OS.type == 'windows'){
     boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed,.packages = 'evinf') %dorng%
       try(bootrun_evzinb(full_run,block2,track_progress = F, id = i, maxboot = n_bootstraps))
-    }else{
-      boots <- foreach::foreach(i=1:n_bootstraps,.options.RNG = boot_seed) %dorng%
-        try(bootrun_evzinb(full_run,block2,track_progress = F, id = i, maxboot = n_bootstraps))
-    }
+
   }
   if(multicore){
     if(.Platform$OS.type == 'windows'){
       parallel::stopCluster(cl)
+      foreach::registerDoSEQ()
     }else{
   doParallel::stopImplicitCluster()
     }

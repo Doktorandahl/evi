@@ -88,7 +88,7 @@ compare_models <- function(object, nb_comparison = TRUE, zinb_comparison = TRUE,
 if(nb_comparison){
   if(!is.null(init_theta)){
     if(.Platform$OS.type == 'windows'){
-  bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
+  bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
     inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas,init_theta=init_theta)
     }else{
       bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
@@ -96,7 +96,7 @@ if(nb_comparison){
     }
   }else{
     if(.Platform$OS.type == 'windows'){
-    bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
+    bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
       inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas)
     }else{
       bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
@@ -108,7 +108,7 @@ if(nb_comparison){
 }
   if(zinb_comparison){
     if(.Platform$OS.type == 'windows'){
-  bootstraps_zinb <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
+  bootstraps_zinb <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
     inner_zinb(object$bootstraps[[i]],data = object$data$data,formulas = object$formulas)
     }else{
       bootstraps_zinb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
@@ -121,7 +121,7 @@ if(nb_comparison){
   if(nb_comparison){
     if(!is.null(init_theta)){
       if(.Platform$OS.type == 'windows'){
-    bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.package ="evinf") %dopar%
+    bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.packages ="evinf") %dopar%
     inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas,init_theta=init_theta)
       }else{
         bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
@@ -129,7 +129,7 @@ if(nb_comparison){
       }
     }else{
       if(.Platform$OS.type == 'windows'){
-      bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
+      bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
         inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas)
       }else{
         bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
@@ -141,7 +141,7 @@ if(nb_comparison){
   }
     if(zinb_comparison){
       if(.Platform$OS.type == 'windows'){
-  bootstraps_zinb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
+  bootstraps_zinb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
     inner_zinb(object$bootstraps[[i]],data = data_winsor,formulas = object$formulas)
       }else{
         bootstraps_zinb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
@@ -189,7 +189,8 @@ if(razorize){
   if(multicore){
     if(.Platform$OS.type == 'windows'){
     parallel::stopCluster(cl)
-      }else{
+      foreach::registerDoSEQ()
+    }else{
     doParallel::stopImplicitCluster()
     }
   }
