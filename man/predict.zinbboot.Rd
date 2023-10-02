@@ -11,7 +11,7 @@
     "quantile"),
   pred = c("original", "bootstrap_median", "bootstrap_mean"),
   quantile = NULL,
-  confint = F,
+  confint = FALSE,
   conf_level = 0.9,
   ...
 )

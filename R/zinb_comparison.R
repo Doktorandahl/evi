@@ -427,7 +427,7 @@ quantiles_from_nb <- function(quantile,nb,
 #' @importFrom rlang :=
 #'
 #' @return Predictions from zinbboot
-predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=F, conf_level=0.9,...){
+predict.zinbboot <- function(object,newdata=NULL, type = c('predicted','counts','zi','evinf','count_state','states','all', 'quantile'), pred = c('original','bootstrap_median','bootstrap_mean'),quantile=NULL,confint=FALSE, conf_level=0.9,...){
   
   pred <- match.arg(pred, c('original','bootstrap_median','bootstrap_mean'))
   
