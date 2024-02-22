@@ -27,10 +27,14 @@ compare_models <- function(object, nb_comparison = TRUE, zinb_comparison = TRUE,
   dv_f <- all.vars(object$formulas$formula_nb)[1]
   iv_nb <- all.vars(object$formulas$formula_nb)[-1]
   iv_zi <- all.vars(object$formulas$formula_zi)[-1]
+  if(is.null(iv_zi)){
+    iv_zi <- '1'
+  }
   
   i <- 'temp_iter'
-
+if(zinb_comparison){
   f_zinb <- as.formula(paste(dv_f,'~',paste(iv_nb,collapse = '+'),'|',paste(iv_zi,collapse = '+')))
+}
   if(nb_comparison){
     if(!is.null(init_theta)){
   full_nb <- try(MASS::glm.nb(object$formulas$formula_nb,data = object$data$data,init.theta=init_theta))

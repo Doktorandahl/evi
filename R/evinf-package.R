@@ -3,6 +3,7 @@
 
 ## usethis namespace: start
 #' @importFrom doRNG %dorng%
+#' @importFrom foreach %:%
 #' @importFrom foreach %do%
 #' @importFrom foreach %dopar%
 #' @importFrom generics glance
@@ -28,6 +29,7 @@
 #' @importFrom stats pnbinom
 #' @importFrom stats predict
 #' @importFrom stats pt
+#' @importFrom stats qchisq
 #' @importFrom stats qnbinom
 #' @importFrom stats rnbinom
 #' @importFrom stats runif
