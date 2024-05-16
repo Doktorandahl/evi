@@ -3,7 +3,7 @@ harmonic_calc <- function(pr_count,count,pr_pareto,C,pareto_alpha){
 }
 
 explog_calc <- function(pr_count,count,pr_pareto,C,pareto_alpha){
-  pr_count*count + pr_pareto*exp(1/pareto_alpha)
+  pr_count*count + C*pr_pareto*exp(1/pareto_alpha)
 }
 
 

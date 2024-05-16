@@ -93,18 +93,18 @@ if(nb_comparison){
   if(!is.null(init_theta)){
     if(.Platform$OS.type == 'windows'){
   bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
-    inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas,init_theta=init_theta)
+    try(inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas,init_theta=init_theta))
     }else{
       bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-        inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas,init_theta=init_theta)
+        try(inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas,init_theta=init_theta))
     }
   }else{
     if(.Platform$OS.type == 'windows'){
     bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
-      inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas)
+      try(inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas))
     }else{
       bootstraps_nb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-        inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas)
+        try(inner_nb(object$bootstraps[[i]],data = object$data$data,formulas=object$formulas))
     }
   }
   names(bootstraps_nb) <- names(object$bootstraps)
@@ -113,10 +113,10 @@ if(nb_comparison){
   if(zinb_comparison){
     if(.Platform$OS.type == 'windows'){
   bootstraps_zinb <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
-    inner_zinb(object$bootstraps[[i]],data = object$data$data,formulas = object$formulas)
+    try(inner_zinb(object$bootstraps[[i]],data = object$data$data,formulas = object$formulas))
     }else{
       bootstraps_zinb <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-        inner_zinb(object$bootstraps[[i]],data = object$data$data,formulas = object$formulas)
+        try(inner_zinb(object$bootstraps[[i]],data = object$data$data,formulas = object$formulas))
     }
   names(bootstraps_zinb) <- names(object$bootstraps)
   bootstraps_zinb <- bootstraps_zinb %>% purrr::map(mr_inner)
@@ -126,18 +126,18 @@ if(nb_comparison){
     if(!is.null(init_theta)){
       if(.Platform$OS.type == 'windows'){
     bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.packages ="evinf") %dopar%
-    inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas,init_theta=init_theta)
+    try(inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas,init_theta=init_theta))
       }else{
         bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-          inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas,init_theta=init_theta)
+          try(inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas,init_theta=init_theta))
       }
     }else{
       if(.Platform$OS.type == 'windows'){
       bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
-        inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas)
+        try(inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas))
       }else{
         bootstraps_nb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-          inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas)
+          try(inner_nb(object$bootstraps[[i]],data = data_winsor,formulas=object$formulas))
       }
     }
   names(bootstraps_nb_winsor) <- names(object$bootstraps)
@@ -146,10 +146,10 @@ if(nb_comparison){
     if(zinb_comparison){
       if(.Platform$OS.type == 'windows'){
   bootstraps_zinb_winsor <- foreach::foreach(i = 1:length(object$bootstraps),.packages = "evinf") %dopar%
-    inner_zinb(object$bootstraps[[i]],data = data_winsor,formulas = object$formulas)
+    try(inner_zinb(object$bootstraps[[i]],data = data_winsor,formulas = object$formulas))
       }else{
         bootstraps_zinb_winsor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-          inner_zinb(object$bootstraps[[i]],data = data_winsor,formulas = object$formulas)
+          try(inner_zinb(object$bootstraps[[i]],data = data_winsor,formulas = object$formulas))
       }
   names(bootstraps_zinb_winsor) <- names(object$bootstraps)
   bootstraps_zinb_winsor <- bootstraps_zinb_winsor %>% purrr::map(mr_inner)
@@ -160,18 +160,18 @@ if(razorize){
     if(!is.null(init_theta)){
       if(.Platform$OS.type == 'windows'){
   bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
-    inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas,init_theta=init_theta)
+    try(inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas,init_theta=init_theta))
       }else{
         bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-          inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas,init_theta=init_theta)
+          try(inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas,init_theta=init_theta))
       }
     }else{
       if(.Platform$OS.type == 'windows'){
       bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
-        inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas)
+        try(inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas))
       }else{
         bootstraps_nb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-          inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas)
+          try(inner_nb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas))
       }
     }
   names(bootstraps_nb_razor) <- names(object$bootstraps)
@@ -180,10 +180,10 @@ if(razorize){
   if(zinb_comparison){
     if(.Platform$OS.type == 'windows'){
   bootstraps_zinb_razor <- foreach::foreach(i = 1:length(object$bootstraps),.package = "evinf") %dopar%
-    inner_zinb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas)
+    try(inner_zinb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas))
     }else{
       bootstraps_zinb_razor <- foreach::foreach(i = 1:length(object$bootstraps)) %dopar%
-        inner_zinb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas)
+        try(inner_zinb(object$bootstraps[[i]],data = data_razor,formulas = object$formulas))
     }
   names(bootstraps_zinb_razor) <- names(object$bootstraps)
 

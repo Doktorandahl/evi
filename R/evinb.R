@@ -148,12 +148,14 @@ object$data$x.multinom.pl <- object$x.multinom.pl
 object$x.multinom.pl <- NULL
 object$resp <- object$resp[,2:3]
 
+
 object$props <- object$par.mat$Props[,2:3]
 colnames(object$props) <-  colnames(object$resp) <-  c('count','pareto')
 object$par.mat$Props <- NULL
 object$coef <- object$par.mat
 object$par.mat <- NULL
 object$coef$Beta.multinom.ZC <- NULL
+object$par_all <- object$par_all[length(Ini.Val$Beta.multinom.ZC)+1:length(object$par_all)]
 
 object$fitted <- list()
 object$fitted$y.hat.pl_exp.E.logy <- object$y.hat.plexpElogy

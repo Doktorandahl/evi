@@ -32,6 +32,7 @@ oob_evaluation <- function(object,predict_type = c('harmonic','explog'),
   evals <- foreach::foreach(i = 1:length(object$bootstraps)) %do%
     try(oob_inner(object$bootstraps[[i]],object$data,predict_type,ev_metric,model_type = class(object)))
   
+  evals <- purrr::map(evals,err2na)
   evals <- purrr::reduce(evals,c)
   
   return(evals)
@@ -48,6 +49,15 @@ if(model_type=="evzinb"){
 }
   ev_metric(predictions,data$y[-bootstrap$boot_id])
   
+}
+
+
+err2na <- function(x){
+  if(is.null(x) | is(x,'try-error')){
+    return(NA)
+  }else{
+    return(x)
+  }
 }
 
 
